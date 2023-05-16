@@ -52,6 +52,13 @@ const userControl = {
             name: req.body.name,
             email: req.body.email,
             password: hashPass,
+            sex:req.body.sex,
+            area:req.body.area,
+            height:req.body.height,
+            weight:req.body.weight,
+            age:req.body.age,
+            exercise:req.body.exercise,
+            wishList:req.body.wishList,
         })
         newUser.save()
             .then(() => res.send('User saved to database'))
