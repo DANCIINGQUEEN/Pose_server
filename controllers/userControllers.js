@@ -11,28 +11,58 @@ const userControl = {
     sendVerificationCode: (req, res) => {
         const email = req.body.email
         const verifyCode = Array.from({length: 6}, () => Math.floor(Math.random() * 10)).join("");
-        verifyCodes[email] = verifyCode;
-        // Set up email transporter
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.REACT_APP_NODEMAILER_USER,
-                pass: process.env.REACT_APP_NODEMAILER_PASS
-            }
-        });
-        const mailOptions = {
-            from: process.env.REACT_APP_NODEMAILER_USER,
-            to: email,
-            subject: "Verification Code",
-            text: `Your verification code is: ${verifyCode}`
-        };
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
+        User.findOne({email}, (err, user) => {
+            if (err) {
                 res.status(400).send("Invalid email address");
+            } else if (user) {
+                res.status(400).send("Email address already exists");
             } else {
-                res.status(200).send(`Verification code sent to email ${verifyCode}`);
+                verifyCodes[email] = verifyCode;
+                // Set up email transporter
+                const transporter = nodemailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                        user: process.env.REACT_APP_NODEMAILER_USER,
+                        pass: process.env.REACT_APP_NODEMAILER_PASS
+                    }
+                });
+                const mailOptions = {
+                    from: process.env.REACT_APP_NODEMAILER_USER,
+                    to: email,
+                    subject: "Verification Code",
+                    text: `Your verification code is: ${verifyCode}`
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        res.status(400).send("Invalid email address");
+                    } else {
+                        res.status(200).send(`Verification code sent to email ${verifyCode}`);
+                    }
+                });
             }
-        });
+        })
+        // verifyCodes[email] = verifyCode;
+        // // Set up email transporter
+        // const transporter = nodemailer.createTransport({
+        //     service: "gmail",
+        //     auth: {
+        //         user: process.env.REACT_APP_NODEMAILER_USER,
+        //         pass: process.env.REACT_APP_NODEMAILER_PASS
+        //     }
+        // });
+        // const mailOptions = {
+        //     from: process.env.REACT_APP_NODEMAILER_USER,
+        //     to: email,
+        //     subject: "Verification Code",
+        //     text: `Your verification code is: ${verifyCode}`
+        // };
+        // transporter.sendMail(mailOptions, (error, info) => {
+        //     if (error) {
+        //         res.status(400).send("Invalid email address");
+        //     } else {
+        //         res.status(200).send(`Verification code sent to email ${verifyCode}`);
+        //     }
+        // });
 
     },
     verifyCode: (req, res) => {
@@ -87,7 +117,7 @@ const userControl = {
             return res.status(500).json({message: `Internal Server Error`})
         }
     },
-    getUser: (req, res) => {
+    getUserBasicInfo: (req, res) => {
         const token = req.headers.authorization.split(" ")[1];
         jwt.verify(token, process.env.REACT_APP_JWT_SECRET, (err, decoded) => {
             if (err) return res.status(401).json({message: err})
@@ -97,6 +127,22 @@ const userControl = {
             }
             res.json(user)
         })
+    },
+    getUserFullInfo:(req, res) => {
+        const token = req.headers.authorization.split(" ")[1];
+        //jwt에 기록된 유저의 몽고 db에 저장되어있는 모든 정보를 가져온다.
+        jwt.verify(token, process.env.REACT_APP_JWT_SECRET, (err, decoded) => {
+            if (err) return res.status(401).json({message: err})
+            User.findOne({email: decoded.email})
+                .then(user => {
+                    res.json(user)
+                })
+                .catch(err => {
+                    console.error(err)
+                    return res.status(500).json({message: `Internal Server Error`})
+                })
+        })
+
     }
 }
 
