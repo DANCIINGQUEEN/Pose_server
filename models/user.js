@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
     age: {type: String, required: true},
     exercise: {type: String, required: true},
     wishList: {type: Array, required: true},
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }]
 })
 
 mongoose.model('user', userSchema)

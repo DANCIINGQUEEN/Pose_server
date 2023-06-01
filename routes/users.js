@@ -4,10 +4,14 @@ const userController = require('../controllers/userControllers');
 
 
 router.post('/sendVerificationCode', userController.sendVerificationCode)
-router.post('/verifyCode', userController.verifyCode)
-router.post('/register', userController.register)
-router.post('/login', userController.login)
-router.get('/getUserBasicInfo',userController.getUserBasicInfo)
-router.get('/getUserFullInfo', userController.getUserFullInfo)
+.post('/verifyCode', userController.verifyCode)
+.post('/register', userController.register)
+.post('/login', userController.login)
+.get('/getUserBasicInfo',userController.getUserBasicInfo)
+.get('/getUserFullInfo', userController.getUserFullInfo)
+.get('/getRecommendUsers', userController.getRecommendUsers)
+.post('/followUser', userController.followUser)
+
+
 
 module.exports = router;

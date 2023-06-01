@@ -8,96 +8,71 @@ require('dotenv').config()
 
 let verifyCodes = {}
 const userControl = {
-    sendVerificationCode: (req, res) => {
-        const email = req.body.email
-        const verifyCode = Array.from({length: 6}, () => Math.floor(Math.random() * 10)).join("");
-        User.findOne({email}, (err, user) => {
-            if (err) {
-                res.status(400).send("Invalid email address");
-            } else if (user) {
-                res.status(400).send("Email address already exists");
-            } else {
-                verifyCodes[email] = verifyCode;
-                // Set up email transporter
-                const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                        user: process.env.REACT_APP_NODEMAILER_USER,
-                        pass: process.env.REACT_APP_NODEMAILER_PASS
-                    }
-                });
-                const mailOptions = {
-                    from: process.env.REACT_APP_NODEMAILER_USER,
-                    to: email,
-                    subject: "Verification Code",
-                    text: `Your verification code is: ${verifyCode}`
-                };
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        res.status(400).send("Invalid email address");
-                    } else {
-                        res.status(200).send(`Verification code sent to email ${verifyCode}`);
-                    }
-                });
-            }
-        })
-        // verifyCodes[email] = verifyCode;
-        // // Set up email transporter
-        // const transporter = nodemailer.createTransport({
-        //     service: "gmail",
-        //     auth: {
-        //         user: process.env.REACT_APP_NODEMAILER_USER,
-        //         pass: process.env.REACT_APP_NODEMAILER_PASS
-        //     }
-        // });
-        // const mailOptions = {
-        //     from: process.env.REACT_APP_NODEMAILER_USER,
-        //     to: email,
-        //     subject: "Verification Code",
-        //     text: `Your verification code is: ${verifyCode}`
-        // };
-        // transporter.sendMail(mailOptions, (error, info) => {
-        //     if (error) {
-        //         res.status(400).send("Invalid email address");
-        //     } else {
-        //         res.status(200).send(`Verification code sent to email ${verifyCode}`);
-        //     }
-        // });
+    sendVerificationCode: async (req, res) => {
+        try {
+            const email = req.body.email;
+            const verifyCode = Array.from({ length: 6 }, () =>
+                Math.floor(Math.random() * 10)
+            ).join("");
+            verifyCodes[email] = verifyCode;
 
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.REACT_APP_NODEMAILER_USER,
+                    pass: process.env.REACT_APP_NODEMAILER_PASS,
+                },
+            });
+
+            const mailOptions = {
+                from: process.env.REACT_APP_NODEMAILER_USER,
+                to: email,
+                subject: "Verification Code",
+                text: `Your verification code is: ${verifyCode}`,
+            };
+
+            await transporter.sendMail(mailOptions);
+
+            res.status(200).send(`인증번호가 이메일로 전송되었습니다. ${verifyCode}`);
+        } catch (error) {
+            res.status(400).send("Invalid email address");
+        }
     },
     verifyCode: (req, res) => {
-        const email = req.body.email;
-        const enteredCode = req.body.verificationCode;
-        // Compare the code entered by the user to the code stored in the verificationCodes object
-        if (verifyCodes[email] && verifyCodes[email] === enteredCode) {
+        const { email, verificationCode } = req.body;
+
+        if (verifyCodes[email] && verifyCodes[email] === verificationCode) {
             res.status(200).send("Verification successful");
         } else {
             res.status(400).send("Invalid verification code");
         }
     },
     register: async (req, res) => {
-        const password = req.body.password
-        const hashPass = await bcrypt.hash(password, 10)
-        const newUser = new User({
-            name: req.body.name,
-            email: req.body.email,
-            password: hashPass,
-            sex:req.body.sex,
-            area:req.body.area,
-            height:req.body.height,
-            weight:req.body.weight,
-            age:req.body.age,
-            exercise:req.body.exercise,
-            wishList:req.body.wishList,
-        })
-        newUser.save()
-            .then(() => res.send('User saved to database'))
-            .catch(err => res.status(400).send(err))
+        try {
+            const { name, email, password, sex, area, height, weight, age, exercise, wishList } = req.body;
+            const hashPass = await bcrypt.hash(password, 10);
+            const newUser = new User({
+                name,
+                email,
+                password: hashPass,
+                sex,
+                area,
+                height,
+                weight,
+                age,
+                exercise,
+                wishList,
+            });
+            await newUser.save();
+            res.send('User saved to database');
+        } catch (error) {
+            res.status(400).send(error);
+        }
     },
     login: async (req, res) => {
         try {
-            const user = await User.findOne({email: req.body.email})
-            if (!user) return res.status(401).json({message: `Invalid email or password`})
+            const user = await User.findOne({ email: req.body.email })
+            if (!user) return res.status(401).json({ message: `Invalid email or password` })
             const isMatch = await bcrypt.compare(req.body.password, user.password)
             if (!isMatch) return res.status(401).json({
                 message: `Invalid password`,
@@ -111,16 +86,16 @@ const userControl = {
                 name: user.name,
                 currentTime: Math.floor(Date.now() / 1000)
             }, process.env.REACT_APP_JWT_SECRET)
-            return res.json({token: token})
+            return res.json({ token })
         } catch (err) {
             console.error(err)
-            return res.status(500).json({message: `Internal Server Error`})
+            return res.status(500).json({ message: `Internal Server Error` })
         }
     },
     getUserBasicInfo: (req, res) => {
         const token = req.headers.authorization.split(" ")[1];
         jwt.verify(token, process.env.REACT_APP_JWT_SECRET, (err, decoded) => {
-            if (err) return res.status(401).json({message: err})
+            if (err) return res.status(401).json({ message: err })
             const user = {
                 name: decoded.name,
                 email: decoded.email
@@ -128,22 +103,69 @@ const userControl = {
             res.json(user)
         })
     },
-    getUserFullInfo:(req, res) => {
-        const token = req.headers.authorization.split(" ")[1];
-        //jwt에 기록된 유저의 몽고 db에 저장되어있는 모든 정보를 가져온다.
-        jwt.verify(token, process.env.REACT_APP_JWT_SECRET, (err, decoded) => {
-            if (err) return res.status(401).json({message: err})
-            User.findOne({email: decoded.email})
-                .then(user => {
-                    res.json(user)
-                })
-                .catch(err => {
-                    console.error(err)
-                    return res.status(500).json({message: `Internal Server Error`})
-                })
-        })
-
-    }
+    getUserFullInfo: async (req, res) => {
+        try {
+            const token = req.headers.authorization.split(" ")[1];
+            const decoded = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const user = await User.findOne({ email: decoded.email });
+            res.json(user);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: "Internal Server Error" });
+        }
+    },
+    getRecommendUsers: async (req, res) => {
+        try {
+            const users = await User.find({}, { password: 0 });
+            res.json(users);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    },
+    followUser: async (req, res) =>{
+        // const  userIdToFollow  = req.body.userIdToFollow;
+        const { userIdToFollow } = req.body
+        const token = req.headers.authorization.split(' ')[1];
+        // return res.status(200).json({ user: userIdToFollow, token: token });
+        try {
+          // Verify and decode the JWT token to get the user's ObjectId
+          const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+        //   const { userId } = decodedToken;
+          
+          // Find the user who wants to follow
+          const user = await User.findById(decodedToken._id);
+          console.log(user);
+        //   return res.status(200).json({ userIdToFollow: userIdToFollow, userId:token, decode:decodedToken });
+          if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+          }
+      
+          // Find the user to be followed
+          const userToFollow = await User.findById(userIdToFollow);
+          console.log(userToFollow);
+          if (!userToFollow) {
+            return res.status(404).json({ message: 'User to follow not found' });
+          }
+      
+          // Check if the user is already following
+          if (user.following.includes(userIdToFollow)) {
+            return res.status(400).json({ message: 'User is already being followed' });
+          }
+      
+          // Add the user ObjectId to following list
+          user.following.push(userIdToFollow);
+          await user.save();
+      
+          res.json({ message: 'User followed successfully' });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Internal Server Error' });
+        }
+      },
+      hello:(req,res)=>{
+        res.send('Hello World!')
+      }
 }
 
 module.exports = userControl
