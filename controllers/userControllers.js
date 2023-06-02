@@ -123,49 +123,34 @@ const userControl = {
             res.status(500).json({ message: 'Internal Server Error' });
         }
     },
-    followUser: async (req, res) =>{
-        // const  userIdToFollow  = req.body.userIdToFollow;
+    followUser: async (req, res) => {
         const { userIdToFollow } = req.body
         const token = req.headers.authorization.split(' ')[1];
-        // return res.status(200).json({ user: userIdToFollow, token: token });
         try {
-          // Verify and decode the JWT token to get the user's ObjectId
-          const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
-        //   const { userId } = decodedToken;
-          
-          // Find the user who wants to follow
-          const user = await User.findById(decodedToken._id);
-          console.log(user);
-        //   return res.status(200).json({ userIdToFollow: userIdToFollow, userId:token, decode:decodedToken });
-          if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-          }
-      
-          // Find the user to be followed
-          const userToFollow = await User.findById(userIdToFollow);
-          console.log(userToFollow);
-          if (!userToFollow) {
-            return res.status(404).json({ message: 'User to follow not found' });
-          }
-      
-          // Check if the user is already following
-          if (user.following.includes(userIdToFollow)) {
-            return res.status(400).json({ message: 'User is already being followed' });
-          }
-      
-          // Add the user ObjectId to following list
-          user.following.push(userIdToFollow);
-          await user.save();
-      
-          res.json({ message: 'User followed successfully' });
+            const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const userId = decodedToken._id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            const userToFollow = await User.findById(userIdToFollow);
+            if (!userToFollow) {
+                return res.status(404).json({ message: 'User to follow not found' });
+            }
+            if (user.following.includes(userIdToFollow)) {
+                return res.status(400).json({ message: 'User is already being followed' });
+            }
+            user.following.push(userIdToFollow);
+            userToFollow.followers.push(userId);
+            //   await user.save();
+            await Promise.all([user.save(), userToFollow.save()]);
+
+            res.json({ message: 'User followed successfully' });
         } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: 'Internal Server Error' });
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
         }
-      },
-      hello:(req,res)=>{
-        res.send('Hello World!')
-      }
+    }
 }
 
 module.exports = userControl
