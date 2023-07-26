@@ -150,7 +150,40 @@ const userControl = {
             console.error(error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
+    },
+    unfollowUser: async (req, res) => {
+
+    },
+    goalSetting: async (req, res) => {
+        const token = req.headers.authorization.split(' ')[1];
+
+        try {
+            const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const userId = decodedToken._id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({message: 'User not found'});
+            }
+            const data = req.body;
+            console.log(user, data,data.userGoal.dDay, data.userGoal.goals);
+            // user.goal.dDay = data.userGoal.dDay;
+            // user.goal.goals = data.userGoal.goals;
+            user.goal = {
+                dDay: data.userGoal.dDay,
+                goals: data.userGoal.goals
+            }
+            await user.save();
+
+            // 클라이언트에게 성공 메시지 또는 필요한 응답을 보냅니다.
+            res.status(200).json({ message: '목표 정보가 성공적으로 저장되었습니다.' });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
     }
+
+
 }
 
 module.exports = userControl
