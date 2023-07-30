@@ -1,14 +1,12 @@
 const mongoose = require('mongoose')
 
-
-
 const goalSchema = new mongoose.Schema({
     dDay: { type: Date, required: true },
     goals: [{
         label: { type: String, required: true },
         cycle: { type: String, required: true },
         number: { type: String, required: true },
-        attain:{ type: String, required: false }
+        attain:{ type: String, default: '0',required: false }
     }]
 });
 const userSchema = new mongoose.Schema({

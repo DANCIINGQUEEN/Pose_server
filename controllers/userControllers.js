@@ -181,7 +181,76 @@ const userControl = {
             console.error(error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
-    }
+    },
+    getFollowing: async (req, res) => {
+        const {following} = req.body;
+        // const q=following
+        const token = req.headers.authorization.split(' ')[1];
+        try {
+            const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const userId = decodedToken._id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            const followingUsers = await User.find({ _id: { $in: following } });
+
+            const followingNames = followingUsers.map((user) => [user.name, user.email]);
+
+            res.json({following: followingNames});
+            // res.j    son({q});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    },
+    getFollowers: async (req, res) => {
+        const {followers}= req.body;
+        const token = req.headers.authorization.split(' ')[1];
+        try {
+            const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const userId = decodedToken._id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            const followerUsers = await User.find({ _id: { $in: followers } });
+
+            const followerNames = followerUsers.map((user) => [user.name, user.email]);
+
+            res.json({followers: followerNames});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    },
+    getUserNames :async (req, res) => {
+        const { followers, following } = req.body; // 데이터는 요청의 바디(body)로 전송될 것으로 가정합니다.
+        const token = req.headers.authorization.split(' ')[1];
+
+        try {
+            const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+            const userId = decodedToken._id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            // 팔로워와 팔로잉 배열에서 제공된 사용자 ID를 가지고 있는 사용자들을 찾습니다.
+            const followerUsers = await User.find({ _id: { $in: followers } });
+            const followingUsers = await User.find({ _id: { $in: following } });
+
+            // 사용자 객체에서 이름을 추출합니다.
+            const followerNames = followerUsers.map((user) => user.name);
+            const followingNames = followingUsers.map((user) => user.name);
+
+            // 이름을 응답으로 클라이언트에게 보냅니다.
+            res.json({followers: followerNames, following: followingNames});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: '내부 서버 오류' });
+        }
+    },
 
 
 }

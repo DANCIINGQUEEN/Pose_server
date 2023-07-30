@@ -11,7 +11,10 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .get('/getUserFullInfo', userController.getUserFullInfo)
 .get('/getRecommendUsers', userController.getRecommendUsers)
 .post('/followUser', userController.followUser)
-    .post('/goalSetting', userController.goalSetting)
+.post('/goalSetting', userController.goalSetting)
+.post('/getFollowers', userController.getFollowers)
+.post('/getFollowing', userController.getFollowing)
+.post('/getUserNames', userController.getUserNames)
 
 
 module.exports = router;
