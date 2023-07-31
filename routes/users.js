@@ -14,7 +14,11 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .post('/goalSetting', userController.goalSetting)
 .post('/getFollowers', userController.getFollowers)
 .post('/getFollowing', userController.getFollowing)
-.post('/getUserNames', userController.getUserNames)
-
-
+.put('/updateProfile', userController.updateProfile)
+.put('/updateAge', userController.updateAge)
+.put('/updateWeight', userController.updateWeight)
+.put('/updateHeight', userController.updateHeight)
+.put('/updateArea', userController.updateArea)
+.put('/updateExercise', userController.updateExercise)
+.put('/updateWishList', userController.updateWishList)
 module.exports = router;
