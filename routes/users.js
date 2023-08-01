@@ -21,4 +21,6 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .put('/updateArea', userController.updateArea)
 .put('/updateExercise', userController.updateExercise)
 .put('/updateWishList', userController.updateWishList)
+.post('/isPasswordCorrect', userController.isPasswordCorrect)
+.put('/updatePassword', userController.updatePassword)
 module.exports = router;
