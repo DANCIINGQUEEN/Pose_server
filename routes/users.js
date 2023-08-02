@@ -17,5 +17,6 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .put('/updateInformation', userController.updateInformation)
 .post('/isPasswordCorrect', userController.isPasswordCorrect)
 .put('/updatePassword', userController.updatePassword)
-.post('/followingChange', userController.followingChange)
+.post('/getUnfollow', userController.getUnfollow)
+.delete('/deleteFollowers', userController.initialFollower)
 module.exports = router;
