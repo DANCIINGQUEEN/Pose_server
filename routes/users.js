@@ -1,7 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userControllers');
+const multer = require('multer')
+const path = require('path')
+const mongoose = require("mongoose");
+const User = mongoose.model('user')
 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/uploadImage/')
+    },
+    filename: (req, file, cb) => {
+        const email = req.body.email
+        cb(null, email+ '-' + Date.now() + file.originalname)
+    }
+})
+
+const upload = multer({storage: storage})
 
 router.post('/sendVerificationCode', userController.sendVerificationCode)
 .post('/verifyCode', userController.verifyCode)
@@ -19,4 +35,8 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .put('/updatePassword', userController.updatePassword)
 .post('/getUnfollow', userController.getUnfollow)
 .delete('/deleteFollowers', userController.initialFollower)
+.get('/initialGoal', userController.initialGoal)
+.post('/uploadPost', upload.single('file'), userController.uploadPost)
+.get('/getPosts', userController.getPosts)
+
 module.exports = router;

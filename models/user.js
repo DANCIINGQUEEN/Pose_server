@@ -9,6 +9,16 @@ const goalSchema = new mongoose.Schema({
         attain:{ type: String, default: '0',required: false }
     }]
 });
+const userPostSchema = new mongoose.Schema({
+    image: { type: String, required: true },
+    content: { type: String, required: true },
+    date: { type: Date, default: Date.now },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
+    comments: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+        content: { type: String, required: true },
+    }]
+})
 const userSchema = new mongoose.Schema({
     name: {type: String, required: true},
     email: {type: String, unique: true, required: true},
@@ -22,7 +32,8 @@ const userSchema = new mongoose.Schema({
     wishList: {type: Array, required: true},
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
-    goal: { type: goalSchema, required: false }
+    goal: { type: goalSchema, required: false },
+    post: [{ type: userPostSchema, required: false }],
 })
 
 mongoose.model('user', userSchema)

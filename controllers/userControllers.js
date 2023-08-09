@@ -3,6 +3,7 @@ const User = mongoose.model('user')
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+
 require('dotenv').config()
 
 const getUserFromToken = async (req) => {
@@ -37,9 +38,10 @@ const updateProfile = async (req, res, propName) => {
     const dataToUpdate = req.body;
     const updated = await updateProps(req, res, dataToUpdate, propName);
     if (updated) {
-        return res.json({state: true});
+        return res.status(200).json({state: true});
     }
 };
+
 
 let verifyCodes = {}
 const userControl = {
@@ -94,7 +96,7 @@ const userControl = {
                 wishList,
             });
             await newUser.save();
-            res.send('User saved to database');
+            res.status(200).send('User saved to database');
         } catch (error) {
             res.status(400).send(error);
         }
@@ -116,7 +118,7 @@ const userControl = {
                 name: user.name,
                 currentTime: Math.floor(Date.now() / 1000)
             }, process.env.REACT_APP_JWT_SECRET)
-            return res.json({token})
+            return res.status(200).json({token})
         } catch (err) {
             console.error(err)
             return res.status(500).json({message: `Internal Server Error`})
@@ -125,7 +127,8 @@ const userControl = {
     getUserFullInfo: async (req, res) => {
         try {
             const user = await getUserFromToken(req)
-            res.json(user);
+            checkUserExists(user, res);
+            res.status(200).json(user);
         } catch (err) {
             console.error(err);
             res.status(500).json({message: "Internal Server Error"});
@@ -143,7 +146,7 @@ const userControl = {
             const recommendedUsers = await User.find({
                 _id: {$ne: user._id, $nin: followingUserIds},
             });
-            res.json({recommendedUsers});
+            res.status(200).json({recommendedUsers});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -167,7 +170,7 @@ const userControl = {
             await userToFollow.save();
             const followingUsers = await User.find({_id: {$in: user.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
-            res.json({following: user.following, followingNames: followingNames});
+            res.status(200).json({following: user.following, followingNames: followingNames});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -190,7 +193,7 @@ const userControl = {
             const updatedUser = await User.findById(user._id);
             const followingUsers = await User.find({_id: {$in: updatedUser.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
-            res.json({f: friend, following: updatedUser.following, followingNames: followingNames})
+            res.statue(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -232,6 +235,17 @@ const userControl = {
             res.status(500).json({message: 'Internal Server Error'});
         }
     },
+    initialGoal: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req)
+            checkUserExists(user, res);
+            const updatedUser = await User.findByIdAndUpdate(user._id, {$set: {goal: null}}, {new: true});
+            res.status(200).json({user: updatedUser});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: 'Internal Server Error'});
+        }
+    },
     getFollowing: async (req, res) => {
         const {following} = req.body;
         try {
@@ -239,7 +253,7 @@ const userControl = {
             checkUserExists(user, res);
             const followingUsers = await User.find({_id: {$in: following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
-            res.json({following: followingNames});
+            res.status(200).json({following: followingNames});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -253,7 +267,7 @@ const userControl = {
 
             const followerUsers = await User.find({_id: {$in: followers}});
             const followerNames = followerUsers.map((user) => [user._id, user.name, user.email]);
-            res.json({followers: followerNames});
+            res.status(200).json({followers: followerNames});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -264,7 +278,7 @@ const userControl = {
         const nameUpdated = await updateProps(req, res, {name}, 'name');
         const emailUpdated = await updateProps(req, res, {email}, 'email');
         if (nameUpdated && emailUpdated) {
-            return res.json({state: true});
+            return res.status(200).json({state: true});
         }
 
     },
@@ -278,7 +292,7 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
-            res.json({state: isPasswordCorrect});
+            res.status(200).json({state: isPasswordCorrect});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -289,7 +303,82 @@ const userControl = {
         const password = await bcrypt.hash(newPassword, 10);
         const passwordUpdated = await updateProps(req, res, {password}, 'password');
         if (passwordUpdated) {
-            return res.json({state: true});
+            return res.status(200).json({state: true});
+        }
+    },
+    uploadPost: async (req, res) => {
+        try {
+            const image = req.file
+            const {content, email} = req.body
+            const user = await getUserFromToken(req)
+            checkUserExists(user, res);
+            // console.log(email, content, image)
+            const newPost={
+                image: image.path, // 이미지 파일 이름
+                content: content,
+                date: new Date(),
+                likes: [],
+                comments: []
+            }
+            user.post.push(newPost)
+            await user.save();
+            res.status(200).json({message: 'Post uploaded successfully'});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({message: 'Internal Server Error'});
+
+        }
+    },
+    getPosts: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            // 현재 유저가 팔로우하는 유저들의 ID 배열을 가져옵니다.
+            const followingUserIds = user.following;
+            const followingPosts = await User.aggregate([
+                { $match: { _id: { $in: followingUserIds } } },
+                { $unwind: '$post' },
+                { $sort: { 'post.date': -1 } },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        'post.image': 1,
+                        'post.likes': 1,
+                        'post.comments': 1,
+                        'post.date': 1,
+                        'post.content': 1
+                    } }
+            ]);
+            res.status(200).json(followingPosts);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    },
+    getMyPosts: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const myPosts = await User.aggregate([
+                { $match: { _id: user._id } },
+                { $unwind: '$post' },
+                { $sort: { 'post.date': -1 } },
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        'post.image': 1,
+                        'post.likes': 1,
+                        'post.comments': 1,
+                        'post.date': 1,
+                        'post.content': 1
+                    } }
+            ]);
+            res.status(200).json(myPosts);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
         }
     }
 
