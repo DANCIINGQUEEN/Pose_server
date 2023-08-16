@@ -19,7 +19,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage: storage})
 
-router.post('/sendVerificationCode', userController.sendVerificationCode)
+router
+.post('/sendVerificationCode', userController.sendVerificationCode)
 .post('/verifyCode', userController.verifyCode)
 .post('/register', userController.register)
 .post('/login', userController.login)
@@ -38,5 +39,6 @@ router.post('/sendVerificationCode', userController.sendVerificationCode)
 .get('/initialGoal', userController.initialGoal)
 .post('/uploadPost', upload.single('file'), userController.uploadPost)
 .get('/getPosts', userController.getPosts)
+.post('/updateUserExerciseAttain', userController.updateUserExerciseAttain)
 
 module.exports = router;

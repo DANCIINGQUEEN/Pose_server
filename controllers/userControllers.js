@@ -356,32 +356,28 @@ const userControl = {
             res.status(500).json({ error: 'Internal server error' });
         }
     },
-    getMyPosts: async (req, res) => {
-        try {
+    updateUserExerciseAttain: async (req, res) => {
+        try{
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const myPosts = await User.aggregate([
-                { $match: { _id: user._id } },
-                { $unwind: '$post' },
-                { $sort: { 'post.date': -1 } },
-                {
-                    $project: {
-                        _id: 1,
-                        name: 1,
-                        'post.image': 1,
-                        'post.likes': 1,
-                        'post.comments': 1,
-                        'post.date': 1,
-                        'post.content': 1
-                    } }
-            ]);
-            res.status(200).json(myPosts);
-        } catch (error) {
+            const {exercise, attain} = req.body;
+
+            const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
+            if (!exerciseGoal) {
+                return res.status(404).json({ message: 'Exercise goal not found' });
+            }
+
+            // attain 값을 업데이트하고 저장
+            exerciseGoal.attain = attain;
+            await user.save();
+
+            return res.status(200).json({ message: 'Attain value updated successfully' });
+        }catch(error){
             console.error(error);
             res.status(500).json({ error: 'Internal server error' });
         }
-    }
 
+    }
 
 }
 
