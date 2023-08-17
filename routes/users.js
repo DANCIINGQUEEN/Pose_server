@@ -40,5 +40,8 @@ router
 .post('/uploadPost', upload.single('file'), userController.uploadPost)
 .get('/getPosts', userController.getPosts)
 .post('/updateUserExerciseAttain', userController.updateUserExerciseAttain)
+.post('/postUserPostComment', userController.postComment)
+.delete('/deleteUserPostComment', userController.initialUserPostComment)
+    .post('/postUserPostHeart', userController.postHeart)
 
 module.exports = router;

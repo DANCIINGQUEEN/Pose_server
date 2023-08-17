@@ -347,7 +347,8 @@ const userControl = {
                         'post.likes': 1,
                         'post.comments': 1,
                         'post.date': 1,
-                        'post.content': 1
+                        'post.content': 1,
+                        'post._id':1
                     } }
             ]);
             res.status(200).json(followingPosts);
@@ -376,7 +377,80 @@ const userControl = {
             console.error(error);
             res.status(500).json({ error: 'Internal server error' });
         }
+    },
+    postComment: async (req, res) => {
+        try {
+            const {userId, postId, content} = req.body;
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const postUser = await User.findById(userId).populate('post');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
 
+            // post를 찾음
+            const post = postUser.post.find(p => p._id.toString() === postId);
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+            const newComment = {
+                user: user.name,
+                content: content,
+            }
+            // res.json({nC:newComment, post:post})
+            post.comments.push(newComment);
+            await postUser.save();
+            res.status(200).json({ message: 'Comment posted successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    },
+    initialUserPostComment: async (req, res) => {
+        try {
+            const {userId, postId} = req.body;
+            const postUser = await User.findById(userId).populate('post');
+            if (!postUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // post를 찾음
+            const post = postUser.post.find(p => p._id.toString() === postId);
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+            post.comments = [];
+            await postUser.save();
+            // res.json(post.comments);
+        }catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    },
+    postHeart: async (req, res) => {
+        try {
+            const {userId, postId} = req.body;
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const postUser = await User.findById(userId).populate('post');
+            if (!postUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // post를 찾음
+            const post = postUser.post.find(p => p._id.toString() === postId);
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            // res.json({nC:newComment, post:post})
+            post.likes.push(user.name);
+            await postUser.save();
+            res.status(200).json({ message: 'Heart posted successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 
 }
