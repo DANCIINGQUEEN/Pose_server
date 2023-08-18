@@ -313,7 +313,7 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             // console.log(email, content, image)
-            const newPost={
+            const newPost = {
                 image: image.path, // 이미지 파일 이름
                 content: content,
                 date: new Date(),
@@ -329,6 +329,17 @@ const userControl = {
 
         }
     },
+    initialUserPost: async (req, res) => {
+        try {
+            const {userId} = req.body
+            const postUser = await User.findById(userId).populate('post');
+            postUser.post = []
+            await postUser.save();
+            res.json({post: postUser})
+        } catch (error) {
+            console.error(error)
+        }
+    },
     getPosts: async (req, res) => {
         try {
             const user = await getUserFromToken(req);
@@ -336,9 +347,9 @@ const userControl = {
             // 현재 유저가 팔로우하는 유저들의 ID 배열을 가져옵니다.
             const followingUserIds = user.following;
             const followingPosts = await User.aggregate([
-                { $match: { _id: { $in: followingUserIds } } },
-                { $unwind: '$post' },
-                { $sort: { 'post.date': -1 } },
+                {$match: {_id: {$in: followingUserIds}}},
+                {$unwind: '$post'},
+                {$sort: {'post.date': -1}},
                 {
                     $project: {
                         _id: 1,
@@ -348,34 +359,61 @@ const userControl = {
                         'post.comments': 1,
                         'post.date': 1,
                         'post.content': 1,
-                        'post._id':1
-                    } }
+                        'post._id': 1
+                    }
+                }
             ]);
             res.status(200).json(followingPosts);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
+        }
+    },
+    getMyPosts: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const myPosts= await User.aggregate([
+                {$match: {_id: user._id}},
+                {$unwind: '$post'},
+                {$sort: {'post.date': -1}},
+                {
+                    $project: {
+                        _id: 1,
+                        name: 1,
+                        'post.image': 1,
+                        'post.likes': 1,
+                        'post.comments': 1,
+                        'post.date': 1,
+                        'post.content': 1,
+                        'post._id': 1
+                    }
+                }])
+            res.status(200).json(myPosts);
+
+        }catch (e) {
+            console.error(e)
         }
     },
     updateUserExerciseAttain: async (req, res) => {
-        try{
+        try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
             const {exercise, attain} = req.body;
 
             const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
             if (!exerciseGoal) {
-                return res.status(404).json({ message: 'Exercise goal not found' });
+                return res.status(404).json({message: 'Exercise goal not found'});
             }
 
             // attain 값을 업데이트하고 저장
             exerciseGoal.attain = attain;
             await user.save();
 
-            return res.status(200).json({ message: 'Attain value updated successfully' });
-        }catch(error){
+            return res.status(200).json({message: 'Attain value updated successfully'});
+        } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
         }
     },
     postComment: async (req, res) => {
@@ -385,13 +423,13 @@ const userControl = {
             checkUserExists(user, res);
             const postUser = await User.findById(userId).populate('post');
             if (!user) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({message: 'User not found'});
             }
 
             // post를 찾음
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) {
-                return res.status(404).json({ message: 'Post not found' });
+                return res.status(404).json({message: 'Post not found'});
             }
             const newComment = {
                 user: user.name,
@@ -400,10 +438,10 @@ const userControl = {
             // res.json({nC:newComment, post:post})
             post.comments.push(newComment);
             await postUser.save();
-            res.status(200).json({ message: 'Comment posted successfully' });
+            res.status(200).json({message: 'Comment posted successfully'});
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
         }
     },
     initialUserPostComment: async (req, res) => {
@@ -411,20 +449,20 @@ const userControl = {
             const {userId, postId} = req.body;
             const postUser = await User.findById(userId).populate('post');
             if (!postUser) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({message: 'User not found'});
             }
 
             // post를 찾음
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) {
-                return res.status(404).json({ message: 'Post not found' });
+                return res.status(404).json({message: 'Post not found'});
             }
             post.comments = [];
             await postUser.save();
             // res.json(post.comments);
-        }catch (error) {
+        } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
         }
     },
     postHeart: async (req, res) => {
@@ -434,22 +472,30 @@ const userControl = {
             checkUserExists(user, res);
             const postUser = await User.findById(userId).populate('post');
             if (!postUser) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({message: 'User not found'});
             }
 
             // post를 찾음
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) {
-                return res.status(404).json({ message: 'Post not found' });
+                return res.status(404).json({message: 'Post not found'});
             }
 
             // res.json({nC:newComment, post:post})
-            post.likes.push(user.name);
+            // post.likes.push(user.name);
+            const indexOfName = post.likes.indexOf(user.name);
+            if (indexOfName !== -1) {
+                // User's name is in the likes array, remove it
+                post.likes.splice(indexOfName, 1);
+            } else {
+                // User's name is not in the likes array, add it
+                post.likes.push(user.name);
+            }
             await postUser.save();
-            res.status(200).json({ message: 'Heart posted successfully' });
+            res.status(200).json({message: 'Heart posted successfully'});
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({error: 'Internal server error'});
         }
     }
 

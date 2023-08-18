@@ -42,6 +42,8 @@ router
 .post('/updateUserExerciseAttain', userController.updateUserExerciseAttain)
 .post('/postUserPostComment', userController.postComment)
 .delete('/deleteUserPostComment', userController.initialUserPostComment)
-    .post('/postUserPostHeart', userController.postHeart)
+.post('/postUserPostHeart', userController.postHeart)
+.delete('/deleteUserPost', userController.initialUserPost)
+.get('/getMyPosts', userController.getMyPosts)
 
 module.exports = router;
