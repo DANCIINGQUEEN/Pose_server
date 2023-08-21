@@ -79,7 +79,23 @@ const userControl = {
             res.status(400).send("Invalid verification code");
         }
     },
-    register: async (req, res) => {
+    registerSimpleUser: async (req, res) => {
+        try {
+            const {name, email, password} = req.body;
+            const hashPass = await bcrypt.hash(password, 10);
+            const simpleNewUser= new User({
+                name,
+                email,
+                password: hashPass,
+            })
+            await simpleNewUser.save();
+            res.status(200).send('User saved to database');
+
+        } catch (e) {
+            res.status(400).send(e);
+        }
+    },
+    registerDetailUser: async (req, res) => {
         try {
             const {name, email, password, sex, area, height, weight, age, exercise, wishList} = req.body;
             const hashPass = await bcrypt.hash(password, 10);
@@ -373,7 +389,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const myPosts= await User.aggregate([
+            const myPosts = await User.aggregate([
                 {$match: {_id: user._id}},
                 {$unwind: '$post'},
                 {$sort: {'post.date': -1}},
@@ -391,7 +407,7 @@ const userControl = {
                 }])
             res.status(200).json(myPosts);
 
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
     },
