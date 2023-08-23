@@ -3,8 +3,6 @@ const router = express.Router();
 const userController = require('../controllers/userControllers');
 const multer = require('multer')
 const path = require('path')
-const mongoose = require("mongoose");
-const User = mongoose.model('user')
 
 
 const storage = multer.diskStorage({

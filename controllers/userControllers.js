@@ -90,7 +90,6 @@ const userControl = {
             })
             await simpleNewUser.save();
             res.status(200).send('User saved to database');
-
         } catch (e) {
             res.status(400).send(e);
         }
@@ -198,18 +197,14 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             const userToUnfollow = await User.findById(friend);
-            if (!userToUnfollow) {
-                return res.status(404).json({message: 'User to unfollow not found'});
-            }
-            if (!user.following.includes(friend)) {
-                return res.status(400).json({message: 'User is not being followed'});
-            }
+            !userToUnfollow && res.status(404).json({message: 'User to unfollow not found'});
+            !user.following.includes(friend) && res.status(400).json({message: 'User is not being followed'});
             await User.updateOne({_id: user._id}, {$pull: {following: friend}});
             await User.updateOne({_id: friend}, {$pull: {followers: user._id}});
             const updatedUser = await User.findById(user._id);
             const followingUsers = await User.find({_id: {$in: updatedUser.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
-            res.statue(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
+            res.status(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
@@ -219,20 +214,14 @@ const userControl = {
         const {userId} = req.body
         try {
             const user = await User.findById(userId);
-            if (!user) {
-                return res.status(404).json({message: 'User not found'});
-            }
-
-            // Clear the followers array
+            !user&&res.status(404).json({message: 'User not found'});
             user.followers = [];
             await user.save();
-
             res.json({msg: 'success', name: user.name, followers: user.followers});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
         }
-
     },
     goalSetting: async (req, res) => {
         try {
@@ -244,7 +233,7 @@ const userControl = {
                 goals: data.userGoal.goals
             }
             await user.save();
-            res.status(200).json({message: '목표 정보가 성공적으로 저장되었습니다.'});
+            res.status(200).json({mgs:'success'});
 
         } catch (error) {
             console.error(error);
@@ -280,7 +269,6 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-
             const followerUsers = await User.find({_id: {$in: followers}});
             const followerNames = followerUsers.map((user) => [user._id, user.name, user.email]);
             res.status(200).json({followers: followerNames});
@@ -293,10 +281,7 @@ const userControl = {
         const {name, email} = req.body;
         const nameUpdated = await updateProps(req, res, {name}, 'name');
         const emailUpdated = await updateProps(req, res, {email}, 'email');
-        if (nameUpdated && emailUpdated) {
-            return res.status(200).json({state: true});
-        }
-
+        (nameUpdated&&emailUpdated) && res.status(200).json({state: true});
     },
     updateInformation: async (req, res) => {
         const {item} = req.body;
@@ -312,15 +297,14 @@ const userControl = {
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
+            //aa
         }
     },
     updatePassword: async (req, res) => {
         const {newPassword} = req.body;
         const password = await bcrypt.hash(newPassword, 10);
         const passwordUpdated = await updateProps(req, res, {password}, 'password');
-        if (passwordUpdated) {
-            return res.status(200).json({state: true});
-        }
+        passwordUpdated && res.status(200).json({state: true});
     },
     uploadPost: async (req, res) => {
         try {
@@ -328,7 +312,6 @@ const userControl = {
             const {content, email} = req.body
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-            // console.log(email, content, image)
             const newPost = {
                 image: image.path, // 이미지 파일 이름
                 content: content,
@@ -360,7 +343,6 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            // 현재 유저가 팔로우하는 유저들의 ID 배열을 가져옵니다.
             const followingUserIds = user.following;
             const followingPosts = await User.aggregate([
                 {$match: {_id: {$in: followingUserIds}}},
@@ -416,16 +398,10 @@ const userControl = {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
             const {exercise, attain} = req.body;
-
             const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
-            if (!exerciseGoal) {
-                return res.status(404).json({message: 'Exercise goal not found'});
-            }
-
-            // attain 값을 업데이트하고 저장
+            !exerciseGoal&&res.status(404).json({message: 'Exercise goal not found'});
             exerciseGoal.attain = attain;
             await user.save();
-
             return res.status(200).json({message: 'Attain value updated successfully'});
         } catch (error) {
             console.error(error);
@@ -438,20 +414,13 @@ const userControl = {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
             const postUser = await User.findById(userId).populate('post');
-            if (!user) {
-                return res.status(404).json({message: 'User not found'});
-            }
-
-            // post를 찾음
+            !user&&res.status(404).json({message: 'User not found'});
             const post = postUser.post.find(p => p._id.toString() === postId);
-            if (!post) {
-                return res.status(404).json({message: 'Post not found'});
-            }
+            !post&&res.status(404).json({message: 'Post not found'});
             const newComment = {
                 user: user.name,
                 content: content,
             }
-            // res.json({nC:newComment, post:post})
             post.comments.push(newComment);
             await postUser.save();
             res.status(200).json({message: 'Comment posted successfully'});
@@ -467,15 +436,12 @@ const userControl = {
             if (!postUser) {
                 return res.status(404).json({message: 'User not found'});
             }
-
-            // post를 찾음
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) {
                 return res.status(404).json({message: 'Post not found'});
             }
             post.comments = [];
             await postUser.save();
-            // res.json(post.comments);
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
@@ -490,30 +456,20 @@ const userControl = {
             if (!postUser) {
                 return res.status(404).json({message: 'User not found'});
             }
-
-            // post를 찾음
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) {
                 return res.status(404).json({message: 'Post not found'});
             }
-
-            // res.json({nC:newComment, post:post})
-            // post.likes.push(user.name);
             const indexOfName = post.likes.indexOf(user.name);
-            if (indexOfName !== -1) {
-                // User's name is in the likes array, remove it
-                post.likes.splice(indexOfName, 1);
-            } else {
-                // User's name is not in the likes array, add it
-                post.likes.push(user.name);
-            }
+            indexOfName !== -1 ? post.likes.splice(indexOfName, 1) : post.likes.push(user.name);
             await postUser.save();
-            res.status(200).json({message: 'Heart posted successfully'});
+            res.status(200).json({mgs:'success'});
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
         }
-    }
+    },
+
 
 }
 

@@ -55,14 +55,17 @@ db.on('disconnect', function () {
 //db 컬렉션 임포트
 require('./models/user')
 require('./models/index')
+require('./models/team')
 
 //라우터 임포트
 const indexRouter = require('./routes/indexs');
 const usersRouter = require('./routes/users');
+const teamRouter = require('./routes/teams');
 
 //라우터 설정
 app.use('/index', indexRouter);
 app.use('/user', usersRouter);
+app.use('/team', teamRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
     following: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
     goal: {type: goalSchema, required: false},
     post: [{type: userPostSchema, required: false}],
+    team: [{type: mongoose.Schema.Types.ObjectId, ref: 'team'}]
 })
 
 mongoose.model('user', userSchema)
