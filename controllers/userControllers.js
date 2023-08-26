@@ -6,8 +6,9 @@ const bcrypt = require('bcrypt')
 
 require('dotenv').config()
 
-const getUserFromToken = async (req) => {
+const getUserFromToken = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
+    if(!token) return res.status(401).json({message: 'No token, authorization denied'});
     const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
     const userId = decodedToken._id;
     const user = await User.findById(userId);
@@ -48,6 +49,8 @@ const userControl = {
     sendVerificationCode: async (req, res) => {
         try {
             const {email} = req.body
+            // const user = await User.findOne({email: email})
+            // if (user) return res.status(200).json({state: false})
             const verifyCode = Array.from({length: 6}, () =>
                 Math.floor(Math.random() * 10)
             ).join("");
@@ -62,22 +65,20 @@ const userControl = {
             const mailOptions = {
                 from: process.env.REACT_APP_NODEMAILER_USER,
                 to: email,
-                subject: "Verification Code",
-                text: `Your verification code is: ${verifyCode}`,
+                subject: "인증 코드",
+                text: `인증 코드는 : ${verifyCode} 입니다.`,
             };
             await transporter.sendMail(mailOptions);
-            res.status(200).send(`인증번호가 이메일로 전송되었습니다. ${verifyCode}`);
+            console.log(verifyCode)
+            res.status(200).json({state:true});
         } catch (error) {
-            res.status(400).send("Invalid email address");
+            res.status(400)
         }
     },
     verifyCode: (req, res) => {
         const {email, verificationCode} = req.body;
-        if (verifyCodes[email] && verifyCodes[email] === verificationCode) {
-            res.status(200).send("Verification successful");
-        } else {
-            res.status(400).send("Invalid verification code");
-        }
+        const state=verifyCodes[email]===verificationCode
+        res.status(200).json({state:state})
     },
     registerSimpleUser: async (req, res) => {
         try {
@@ -118,15 +119,11 @@ const userControl = {
     },
     login: async (req, res) => {
         try {
-            const user = await User.findOne({email: req.body.email})
-            if (!user) return res.status(401).json({message: `Invalid email or password`})
-            const isMatch = await bcrypt.compare(req.body.password, user.password)
-            if (!isMatch) return res.status(401).json({
-                message: `Invalid password`,
-                email: req.body.email,
-                pass: req.body.password,
-                userPass: user.password
-            })
+            const {email, password} = req.body.form
+            const user = await User.findOne({email: email})
+            if (!user) return res.status(401).json({message: 'Invalid email'})
+            const isMatch = await bcrypt.compare(password, user.password)
+            if (!isMatch) return res.status(402).json({message: 'Invalid password'})
             const token = jwt.sign({
                 _id: user._id,
                 email: user.email,
@@ -467,6 +464,7 @@ const userControl = {
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
+            //d
         }
     },
 

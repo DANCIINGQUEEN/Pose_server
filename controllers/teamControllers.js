@@ -85,8 +85,8 @@ const teamControl = {
                 {new: true}
             );
             const team = await Team.findById(teamId);
-            const indexOfUserId=team.members.indexOf(user._id);
-            team.members.splice(indexOfUserId,1);
+            const indexOfUserId = team.members.indexOf(user._id);
+            team.members.splice(indexOfUserId, 1);
             await team.save();
             console.log()
             res.status(200).json({message: 'Success'});
@@ -99,8 +99,8 @@ const teamControl = {
         const {teamId} = req.params;
         try {
             await Team.deleteOne({_id: teamId});
-            res.status(200).json({msg:'success'})
-        }catch(error){
+            res.status(200).json({msg: 'success'})
+        } catch (error) {
             console.error(error);
             res.status(500).json({error: error});
         }
@@ -134,7 +134,7 @@ const teamControl = {
             // const team=await Team.find({_id:teamId});
             const team = await Team.findById(teamId)
                 .populate({
-                    path:'name'
+                    path: 'name'
                 })
                 .populate({
                     path: 'description',
@@ -144,7 +144,7 @@ const teamControl = {
                 })
                 .populate({
                     path: 'notice',
-                    options: {sort: {_id: -1}, limit: 3} // 최근 3개의 공지 추출
+                    options: {limit: 3, sort: {_id: -1}} // 최근 3개의 공지 추출
                 })
                 .populate({
                     path: 'freeBoard',
@@ -164,16 +164,12 @@ const teamControl = {
                     match: {date: {$gte: new Date(new Date() - 12 * 60 * 60 * 1000)}} // 12시간 내의 채팅 리스트 추출
                 })
                 .exec();
-            const teamNotice = await Team.findById(teamId)
-                .populate({
-                    path:'notice',
-                    options: {sort: {_id: -1}, limit: 3} // 최근 3개의 공지 추출
-                }).exec()
+
             const teamInfo = {
                 name: team.name,
                 description: team.description,
-                host:team.host.hostName,
-                notice: team.notice,
+                host: team.host.hostName,
+                notice: team.notice.slice(team.notice.length - 3, team.notice.length).reverse(), // 최근 3개의 공지
                 freeBoard: team.freeBoard, // 최근 1개의 자유게시물
                 anonymousBoard: team.anonymousBoard, // 최근 1개의 익명게시물
                 goal: team.goal,
@@ -181,7 +177,7 @@ const teamControl = {
                 memberCount: team.members.length // 팀 멤버 수
             };
             res.status(200).json(teamInfo);
-            console.log(teamNotice)
+
         } catch (e) {
             console.error(e);
             res.status(500).json({error: 'Internal server error'});
@@ -192,9 +188,9 @@ const teamControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const notice=await Team.find({_id:teamId},{notice:1})
-            res.status(200).json(notice[0].notice)
-        }catch (e) {
+            const notice = await Team.find({_id: teamId}, {notice: 1})
+            res.status(200).json(notice[0].notice.reverse())
+        } catch (e) {
             console.error(e);
             res.status(500).json(e);
         }
@@ -203,24 +199,120 @@ const teamControl = {
     postTeamNotice: async (req, res) => {
         const {teamId} = req.params;
         const {title, content} = req.body;
-        try{
+        try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const team=await Team.findById(teamId);
-            const newNotice={
-                noticeTitle:title,
-                noticeContent:content,
-                author:user.name,
-                authorId:user._id
+            const team = await Team.findById(teamId);
+            const newNotice = {
+                noticeTitle: title,
+                noticeContent: content,
+                author: user.name,
+                authorId: user._id
             }
             team.notice.push(newNotice);
             await team.save();
-            res.status(200).json({msg:'success'})
-        }catch (e) {
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
             console.error(e);
             res.status(500).json(e);
         }
-    }
+    },
+    postTeamBoard: async (req, res) => {
+        const {teamId} = req.params;
+        const {title, content, isAnonymous} = req.body;
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const team = await Team.findById(teamId);
+            let newBoard;
+            if (isAnonymous) {
+                newBoard = {
+                    postTitle: title,
+                    postContent: content,
+                }
+                team.anonymousBoard.push(newBoard);
+            } else {
+                newBoard = {
+                    postTitle: title,
+                    postContent: content,
+                    author: user.name,
+                    authorId: user._id
+                }
+                team.freeBoard.push(newBoard);
+            }
+            await team.save();
+            console.log(newBoard, isAnonymous)
+            res.status(200).json({msg: 'success'})
+
+        } catch (e) {
+            console.error(e);
+            res.status(500).json(e);
+        }
+    },
+    getTeamBoard: async (req, res) => {
+        const {teamId} = req.params;
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const board = await Team.find({_id: teamId}, {freeBoard: 1, anonymousBoard: 1})
+            res.status(200).json(board[0])
+        } catch (e) {
+            console.error(e);
+            res.status(500).json(e);
+        }
+    },
+    postBoardComment: async (req, res) => {
+        const {teamId} = req.params;
+        const {boardId, comment, isAnonymous} = req.body;
+        try {
+            const user = await getUserFromToken(req)
+            checkUserExists(user, res);
+            const team = await Team.findById(teamId)
+            if(!team) return res.status(404).json({msg: 'team not found'})
+            const board = await (isAnonymous ? team.anonymousBoard : team.freeBoard).find(board => board._id.toString() === boardId);
+            if(!board) return res.status(404).json({msg: 'board not found'})
+            const newComment = isAnonymous
+                ? comment
+                : {
+                    user: user.name,
+                    content: comment,
+                    userId: user._id,
+                };
+            board.comments.push(newComment)
+            await team.save()
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
+            console.error(e)
+            res.status(500).json(e)
+        }
+    },
+    getTeamMembers: async (req, res) => {
+        const {teamId} = req.params;
+        try{
+            const team=await Team.findById(teamId)
+            let members=await User.find({_id:{$ne:team.host.hostId,$nin:team.members}})
+            members=members.map(member=>({
+                _id:member._id,
+                name:member.name,
+                email:member.email,
+                sex:member.sex,
+                age:member.age,
+                area:member.area,
+            }))
+            let host=await User.findById(team.host.hostId)
+            host={
+                _id:host._id,
+                name:host.name,
+                email:host.email,
+                sex:host.sex,
+                age:host.age,
+                area:host.area,
+            }
+            res.status(200).json({members, host})
+        }catch(e){
+            console.error(e)
+            res.status(500).json(e)
+    }}
 
 }
 
