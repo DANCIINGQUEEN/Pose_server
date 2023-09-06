@@ -108,25 +108,19 @@ const io = new Server(server
         },
     }
 );
-io.on('connection', (socket) => {
-    console.log(`user connected ${socket.id}`);
 
-    // 클라이언트로부터의 메시지 수신 및 브로드캐스팅
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg); // 모든 클라이언트에게 메시지 전송
-        console.log(msg)
+io.on("connection", (socket) => {
+    console.log(`User Connected: ${socket.id}`);
+
+    socket.on("join_room", (data) => {
+        socket.join(data);
     });
 
-    // 연결 해제 시 처리
-    socket.on('disconnect', () => {
-        console.log('A user disconnected from the chat');
+    socket.on("send_message", (data) => {
+        socket.to(data.room).emit("receive_message", data);
+        console.log(data)
     });
 });
-
-
-/**
- * Normalize a port into a number, string, or false.
- */
 
 function normalizePort(val) {
     const port = parseInt(val, 10);
