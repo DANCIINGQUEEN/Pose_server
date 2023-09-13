@@ -19,9 +19,10 @@ require('dotenv').config()
 let corsOptions = {
     origin: [
         'http://localhost:3000',
+        'http://localhost:3000/api',
         'https://pose2team.vercel.app'
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST","PUT"],
     credentials: true
 }
 
@@ -65,9 +66,9 @@ const usersRouter = require('./routes/users');
 const teamRouter = require('./routes/teams');
 
 //라우터 설정
-app.use('/api/index', indexRouter);
-app.use('/api/user', usersRouter);
-app.use('/api/team', teamRouter);
+app.use('/index', indexRouter);
+app.use('/user', usersRouter);
+app.use('/team', teamRouter);
 
 
 // catch 404 and forward to error handler

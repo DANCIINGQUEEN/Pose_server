@@ -8,7 +8,7 @@ require('dotenv').config()
 
 const getUserFromToken = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1];
-    if(!token) return res.status(401).json({message: 'No token, authorization denied'});
+    if (!token) return res.status(401).json({message: 'No token, authorization denied'});
     const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
     const userId = decodedToken._id;
     const user = await User.findById(userId);
@@ -33,7 +33,7 @@ const updateProps = async (req, res, props, propName) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({message: 'Internal Server Error'});
-    }
+    }//d
 };
 const updateProfile = async (req, res, propName) => {
     const dataToUpdate = req.body;
@@ -49,8 +49,6 @@ const userControl = {
     sendVerificationCode: async (req, res) => {
         try {
             const {email} = req.body
-            // const user = await User.findOne({email: email})
-            // if (user) return res.status(200).json({state: false})
             const verifyCode = Array.from({length: 6}, () =>
                 Math.floor(Math.random() * 10)
             ).join("");
@@ -69,22 +67,22 @@ const userControl = {
                 text: `인증 코드는 : ${verifyCode} 입니다.`,
             };
             await transporter.sendMail(mailOptions);
-            console.log(verifyCode)
-            res.status(200).json({state:true});
+            // console.log(verifyCode)
+            res.status(200).json({state: true});
         } catch (error) {
             res.status(400)
         }
     },
     verifyCode: (req, res) => {
         const {email, verificationCode} = req.body;
-        const state=verifyCodes[email]===verificationCode
-        res.status(200).json({state:state})
+        const state = verifyCodes[email] === verificationCode
+        res.status(200).json({state: state})
     },
     registerSimpleUser: async (req, res) => {
         try {
             const {name, email, password} = req.body;
             const hashPass = await bcrypt.hash(password, 10);
-            const simpleNewUser= new User({
+            const simpleNewUser = new User({
                 name,
                 email,
                 password: hashPass,
@@ -194,11 +192,15 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             const userToUnfollow = await User.findById(friend);
-            !userToUnfollow && res.status(404).json({message: 'User to unfollow not found'});
-            !user.following.includes(friend) && res.status(400).json({message: 'User is not being followed'});
+
+            if (!userToUnfollow) return res.status(404).json({message: 'User to unfollow not found'});
+            if (!user.following.includes(friend)) return res.status(400).json({message: 'User is not being followed'});
+
             await User.updateOne({_id: user._id}, {$pull: {following: friend}});
             await User.updateOne({_id: friend}, {$pull: {followers: user._id}});
+
             const updatedUser = await User.findById(user._id);
+
             const followingUsers = await User.find({_id: {$in: updatedUser.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
             res.status(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
@@ -211,7 +213,8 @@ const userControl = {
         const {userId} = req.body
         try {
             const user = await User.findById(userId);
-            !user&&res.status(404).json({message: 'User not found'});
+
+            if (!user) return res.status(404).json({message: 'User not found'});
             user.followers = [];
             await user.save();
             res.json({msg: 'success', name: user.name, followers: user.followers});
@@ -230,7 +233,7 @@ const userControl = {
                 goals: data.userGoal.goals
             }
             await user.save();
-            res.status(200).json({mgs:'success'});
+            res.status(200).json({mgs: 'success'});
 
         } catch (error) {
             console.error(error);
@@ -278,7 +281,9 @@ const userControl = {
         const {name, email} = req.body;
         const nameUpdated = await updateProps(req, res, {name}, 'name');
         const emailUpdated = await updateProps(req, res, {email}, 'email');
-        (nameUpdated&&emailUpdated) && res.status(200).json({state: true});
+        if(nameUpdated && emailUpdated){
+            res.status(200).json({state: true});
+        }
     },
     updateInformation: async (req, res) => {
         const {item} = req.body;
@@ -294,14 +299,18 @@ const userControl = {
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
-            //aa
         }
     },
     updatePassword: async (req, res) => {
         const {newPassword} = req.body;
         const password = await bcrypt.hash(newPassword, 10);
         const passwordUpdated = await updateProps(req, res, {password}, 'password');
-        passwordUpdated && res.status(200).json({state: true});
+        // passwordUpdated && res.status(200).json({state: true});;;;
+        if (passwordUpdated) {
+            res.status(200).json({state: true});
+        }
+        res.status(200).json({state: true, newPassword: newPassword})
+        console.log(newPassword)
     },
     uploadPost: async (req, res) => {
         try {
@@ -396,7 +405,8 @@ const userControl = {
             checkUserExists(user, res);
             const {exercise, attain} = req.body;
             const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
-            !exerciseGoal&&res.status(404).json({message: 'Exercise goal not found'});
+            // !exerciseGoal && res.status(404).json({message: 'EveryExercises goal not found'});
+            if(!exerciseGoal) return res.status(404).json({message: 'EveryExercises goal not found'});
             exerciseGoal.attain = attain;
             await user.save();
             return res.status(200).json({message: 'Attain value updated successfully'});
@@ -411,9 +421,11 @@ const userControl = {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
             const postUser = await User.findById(userId).populate('post');
-            !user&&res.status(404).json({message: 'User not found'});
+            // !user && res.status(404).json({message: 'User not found'});
+            if(!user) return res.status(404).json({message: 'User not found'});
             const post = postUser.post.find(p => p._id.toString() === postId);
-            !post&&res.status(404).json({message: 'Post not found'});
+            // !post && res.status(404).json({message: 'Post not found'});
+            if(!post) return res.status(404).json({message: 'Post not found'});
             const newComment = {
                 user: user.name,
                 content: content,
@@ -460,7 +472,7 @@ const userControl = {
             const indexOfName = post.likes.indexOf(user.name);
             indexOfName !== -1 ? post.likes.splice(indexOfName, 1) : post.likes.push(user.name);
             await postUser.save();
-            res.status(200).json({mgs:'success'});
+            res.status(200).json({mgs: 'success'});
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
