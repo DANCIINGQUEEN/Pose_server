@@ -7,12 +7,25 @@ const bcrypt = require('bcrypt')
 require('dotenv').config()
 
 const getUserFromToken = async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) return res.status(401).json({message: 'No token, authorization denied'});
-    const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
-    const userId = decodedToken._id;
-    const user = await User.findById(userId);
-    return user;
+    // const token = req.headers.authorization.split(' ')[1];
+    // if (!token) return res.status(401).json({message: 'No token, authorization denied'});
+    // const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+    // const userId = decodedToken._id;
+    // const user = await User.findById(userId);
+    // return user;
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
+        const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+        const userId = decodedToken._id;
+        const user = await User.findById(userId);
+        return user;
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError' && error.message === 'jwt malformed') {
+            return res.status(401).json({ message: 'Malformed token, authorization denied' });
+        }
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
 const checkUserExists = (user, res) => {
     if (!user) {
@@ -139,9 +152,10 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             res.status(200).json(user);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({message: "Internal Server Error"});
+        }
+        catch(error){
+            console.error(error)
+            res.status(401).json({message: 'Invalid token'});
         }
     },
     getRecommendUsers: async (req, res) => {
@@ -476,9 +490,27 @@ const userControl = {
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
-            //d
         }
     },
+    getFollowersExercisesStatus: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const followingUserIds = user.following;
+            const followingUsers = await User.find({_id: {$in: followingUserIds}});
+            const followingUsersExerciseStatus = followingUsers.map(user => {
+                const {name, goal} = user;
+                return {
+                    name,
+                    goal
+                }
+            })
+            res.status(200).json({followingUsersExerciseStatus});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({error: 'Internal server error'});
+        }
+    }
 
 
 }

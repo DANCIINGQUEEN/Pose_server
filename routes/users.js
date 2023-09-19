@@ -44,5 +44,6 @@ router
 .post('/postUserPostHeart', userController.postHeart)
 .delete('/deleteUserPost', userController.initialUserPost)
 .get('/getMyPosts', userController.getMyPosts)
+    .get('/getFollowersExercisesStatus', userController.getFollowersExercisesStatus)
 
 module.exports = router;
