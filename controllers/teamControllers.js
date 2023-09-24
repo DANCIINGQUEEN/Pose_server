@@ -217,6 +217,46 @@ const teamControl = {
             res.status(500).json(e);
         }
     },
+    deleteTeamNotice: async (req, res) => {
+        const {teamId, noticeId} = req.params;
+        try{
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const team=await Team.findById(teamId).populate('notice')
+            const notice=team.notice.find(notice=>notice._id.toString()===noticeId)
+            if(!notice) return res.status(404).json({msg: 'notice not found'})
+            if(notice.authorId.toString()!==user._id.toString()) return res.status(403).json({msg: 'not authorized'})
+            const indexOfNotice=team.notice.indexOf(notice)
+            team.notice.splice(indexOfNotice,1)
+            await team.save()
+            console.log(indexOfNotice)
+            res.status(200).json({msg: 'notice deleted success'})
+        }catch(e){
+            console.error(e);
+            res.status(500).json(e);
+        }
+    },
+    updateTeamNotice:async (req,res)=>{
+          const {teamId, noticeId}=req.params;
+          const {title, content}=req.body;
+          try{
+              const user=await getUserFromToken(req);
+              checkUserExists(user,res);
+
+              const team=await Team.findById(teamId).populate('notice')
+              const notice=team.notice.find(notice=>notice._id.toString()===noticeId)
+              if(!notice) return res.status(404).json({msg: 'notice not found'})
+              notice.noticeTitle=title
+              notice.noticeContent=content
+              await team.save()
+              console.log(notice.noticeTitle, notice.noticeContent, title, content)
+              res.status(200).json({msg: 'success'})
+          }catch(e){
+                console.error(e);
+                res.status(500).json(e);
+          }
+    },
     postTeamBoard: async (req, res) => {
         const {teamId} = req.params;
         const {title, content, isAnonymous} = req.body;

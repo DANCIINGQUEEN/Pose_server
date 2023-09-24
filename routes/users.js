@@ -38,12 +38,13 @@ router
 .get('/initialGoal', userController.initialGoal)
 .post('/uploadPost', upload.single('file'), userController.uploadPost)
 .get('/getPosts', userController.getPosts)
+.delete('/deleteMyPost/:postId', userController.deleteMyPost)
 .post('/updateUserExerciseAttain', userController.updateUserExerciseAttain)
 .post('/postUserPostComment', userController.postComment)
 .delete('/deleteUserPostComment', userController.initialUserPostComment)
 .post('/postUserPostHeart', userController.postHeart)
 .delete('/deleteUserPost', userController.initialUserPost)
 .get('/getMyPosts', userController.getMyPosts)
-    .get('/getFollowersExercisesStatus', userController.getFollowersExercisesStatus)
+.get('/getFollowersExercisesStatus', userController.getFollowersExercisesStatus)
 
 module.exports = router;

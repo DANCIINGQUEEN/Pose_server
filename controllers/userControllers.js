@@ -7,12 +7,6 @@ const bcrypt = require('bcrypt')
 require('dotenv').config()
 
 const getUserFromToken = async (req, res) => {
-    // const token = req.headers.authorization.split(' ')[1];
-    // if (!token) return res.status(401).json({message: 'No token, authorization denied'});
-    // const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
-    // const userId = decodedToken._id;
-    // const user = await User.findById(userId);
-    // return user;
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
@@ -319,12 +313,14 @@ const userControl = {
         const {newPassword} = req.body;
         const password = await bcrypt.hash(newPassword, 10);
         const passwordUpdated = await updateProps(req, res, {password}, 'password');
-        // passwordUpdated && res.status(200).json({state: true});;;;
-        if (passwordUpdated) {
-            res.status(200).json({state: true});
-        }
+        console.log(passwordUpdated)
+        // passwordUpdated && res.status(200).json({state: true});
+        // console.log(newPassword, passwordUpdated)
+        // if (passwordUpdated) {
+        //     res.status(200).json({state: true});
+        // }
         res.status(200).json({state: true, newPassword: newPassword})
-        console.log(newPassword)
+        // console.log(newPassword, password)
     },
     uploadPost: async (req, res) => {
         try {
@@ -410,6 +406,23 @@ const userControl = {
             res.status(200).json(myPosts);
 
         } catch (e) {
+            console.error(e)
+        }
+    },
+    deleteMyPost: async (req, res) => {
+        const {postId} = req.params;
+        try{
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const postUser = await User.findById(user._id).populate('post');
+            const post = postUser.post.find(p => p._id.toString() === postId);
+            if(!post) return res.status(404).json({message: 'Post not found'});
+            const indexOfPost = postUser.post.indexOf(post);
+            postUser.post.splice(indexOfPost, 1);
+            await postUser.save();
+            console.log(indexOfPost)
+            return res.status(200).json({message: 'Post deleted successfully'});
+        }  catch (e) {
             console.error(e)
         }
     },

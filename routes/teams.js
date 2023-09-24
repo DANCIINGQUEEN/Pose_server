@@ -13,6 +13,8 @@ router
 .get('/getTeamInfo/:teamId', teamController.getTeamInfo)
 .post('/postTeamNotice/:teamId', teamController.postTeamNotice)
 .get('/getTeamNotice/:teamId', teamController.getTeamNotice)
+    .delete('/deleteTeamNotice/:teamId/:noticeId', teamController.deleteTeamNotice)
+    .put('/updateTeamNotice/:teamId/:noticeId', teamController.updateTeamNotice)
 .post('/postTeamBoard/:teamId', teamController.postTeamBoard)
 .get('/getTeamBoard/:teamId', teamController.getTeamBoard)
 .post('/postTeamBoardComment/:teamId', teamController.postBoardComment)

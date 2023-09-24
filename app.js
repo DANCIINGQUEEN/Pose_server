@@ -22,7 +22,7 @@ let corsOptions = {
         'http://localhost:3000/api',
         'https://pose2team.vercel.app'
     ],
-    methods: ["GET", "POST","PUT    "],
+    methods: ["GET", "POST","PUT", "DELETE"],
     credentials: true
 }
 
