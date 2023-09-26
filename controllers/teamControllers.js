@@ -219,43 +219,43 @@ const teamControl = {
     },
     deleteTeamNotice: async (req, res) => {
         const {teamId, noticeId} = req.params;
-        try{
+        try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const team=await Team.findById(teamId).populate('notice')
-            const notice=team.notice.find(notice=>notice._id.toString()===noticeId)
-            if(!notice) return res.status(404).json({msg: 'notice not found'})
-            if(notice.authorId.toString()!==user._id.toString()) return res.status(403).json({msg: 'not authorized'})
-            const indexOfNotice=team.notice.indexOf(notice)
-            team.notice.splice(indexOfNotice,1)
+            const team = await Team.findById(teamId).populate('notice')
+            const notice = team.notice.find(notice => notice._id.toString() === noticeId)
+            if (!notice) return res.status(404).json({msg: 'notice not found'})
+            if (notice.authorId.toString() !== user._id.toString()) return res.status(403).json({msg: 'not authorized'})
+            const indexOfNotice = team.notice.indexOf(notice)
+            team.notice.splice(indexOfNotice, 1)
             await team.save()
-            console.log(indexOfNotice)
+            // console.log(indexOfNotice)
             res.status(200).json({msg: 'notice deleted success'})
-        }catch(e){
+        } catch (e) {
             console.error(e);
             res.status(500).json(e);
         }
     },
-    updateTeamNotice:async (req,res)=>{
-          const {teamId, noticeId}=req.params;
-          const {title, content}=req.body;
-          try{
-              const user=await getUserFromToken(req);
-              checkUserExists(user,res);
+    updateTeamNotice: async (req, res) => {
+        const {teamId, noticeId} = req.params;
+        const {title, content} = req.body;
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
 
-              const team=await Team.findById(teamId).populate('notice')
-              const notice=team.notice.find(notice=>notice._id.toString()===noticeId)
-              if(!notice) return res.status(404).json({msg: 'notice not found'})
-              notice.noticeTitle=title
-              notice.noticeContent=content
-              await team.save()
-              console.log(notice.noticeTitle, notice.noticeContent, title, content)
-              res.status(200).json({msg: 'success'})
-          }catch(e){
-                console.error(e);
-                res.status(500).json(e);
-          }
+            const team = await Team.findById(teamId).populate('notice')
+            const notice = team.notice.find(notice => notice._id.toString() === noticeId)
+            if (!notice) return res.status(404).json({msg: 'notice not found'})
+            notice.noticeTitle = title
+            notice.noticeContent = content
+            await team.save()
+            console.log(notice.noticeTitle, notice.noticeContent, title, content)
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
+            console.error(e);
+            res.status(500).json(e);
+        }
     },
     postTeamBoard: async (req, res) => {
         const {teamId} = req.params;
@@ -289,6 +289,46 @@ const teamControl = {
             res.status(500).json(e);
         }
     },
+    deleteTeamBoard: async (req, res) => {
+        const {teamId, boardId} = req.params;
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const team = await Team.findById(teamId).populate('freeBoard')
+            const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
+            if (!freeBoard) return res.status(404).json({msg: 'board not found'})
+            if (freeBoard.authorId.toString() !== user._id.toString()) return res.status(403).json({msg: 'not authorized'})
+            const indexOfBoard = team.freeBoard.indexOf(freeBoard)
+            team.freeBoard.splice(indexOfBoard, 1)
+            await team.save()
+            // console.log(indexOfBoard)
+            res.status(200).json({msg: 'board deleted success'})
+        } catch (e) {
+            console.error(e);
+            res.status(500).json(e);
+        }
+
+    },
+    updateTeamBoard: async (req, res) => {
+        const {teamId, boardId} = req.params;
+        const {title, content} = req.body;
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const team = await Team.findById(teamId).populate('freeBoard')
+            const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
+            if (!freeBoard) return res.status(404).json({msg: 'board not found'})
+            freeBoard.postTitle = title
+            freeBoard.postContent = content
+            await team.save()
+            console.log(freeBoard.postTitle, freeBoard.postContent, title, content)
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
+            console.error(e);
+            res.status(500).json(e);
+        }
+    },
     getTeamBoard: async (req, res) => {
         const {teamId} = req.params;
         try {
@@ -308,9 +348,9 @@ const teamControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             const team = await Team.findById(teamId)
-            if(!team) return res.status(404).json({msg: 'team not found'})
+            if (!team) return res.status(404).json({msg: 'team not found'})
             const board = await (isAnonymous ? team.anonymousBoard : team.freeBoard).find(board => board._id.toString() === boardId);
-            if(!board) return res.status(404).json({msg: 'board not found'})
+            if (!board) return res.status(404).json({msg: 'board not found'})
             const newComment = isAnonymous
                 ? comment
                 : {
@@ -326,33 +366,60 @@ const teamControl = {
             res.status(500).json(e)
         }
     },
-    getTeamMembers: async (req, res) => {
-        const {teamId} = req.params;
-        try{
-            const team=await Team.findById(teamId)
-            let members=await User.find({_id:{$ne:team.host.hostId,$nin:team.members}})
-            members=members.map(member=>({
-                _id:member._id,
-                name:member.name,
-                email:member.email,
-                sex:member.sex,
-                age:member.age,
-                area:member.area,
-            }))
-            let host=await User.findById(team.host.hostId)
-            host={
-                _id:host._id,
-                name:host.name,
-                email:host.email,
-                sex:host.sex,
-                age:host.age,
-                area:host.area,
-            }
-            res.status(200).json({members, host})
-        }catch(e){
+    deleteTeamBoardComment: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+            const {teamId, boardId, commentId} = req.params;
+            const team=await Team.findById(teamId).populate('freeBoard').populate('anonymousBoard')
+            if(!team) return res.status(404).json({msg:'team not found'})
+
+            const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
+            if(!freeBoard) return res.status(404).json({msg:'board not found'})
+
+            const freeBoardComment=freeBoard.comments.find(comment=>comment._id.toString()===commentId)
+            console.log(freeBoardComment._id, commentId)
+            if(freeBoardComment._id.toString()!==commentId) return res.status(404).json({msg:'comment not found'})
+
+            const indexOfComment=freeBoard.comments.indexOf(freeBoardComment)
+            freeBoard.comments.splice(indexOfComment,1)
+            await team.save()
+
+            res.status(200).json({msg: 'success'})
+
+        } catch (e) {
             console.error(e)
             res.status(500).json(e)
-    }}
+        }
+    },
+    getTeamMembers: async (req, res) => {
+        const {teamId} = req.params;
+        try {
+            const team = await Team.findById(teamId)
+            let members = await User.find({_id: {$ne: team.host.hostId, $nin: team.members}})
+            members = members.map(member => ({
+                _id: member._id,
+                name: member.name,
+                email: member.email,
+                sex: member.sex,
+                age: member.age,
+                area: member.area,
+            }))
+            let host = await User.findById(team.host.hostId)
+            host = {
+                _id: host._id,
+                name: host.name,
+                email: host.email,
+                sex: host.sex,
+                age: host.age,
+                area: host.area,
+            }
+            res.status(200).json({members, host})
+        } catch (e) {
+            console.error(e)
+            res.status(500).json(e)
+        }
+    }
 
 }
 

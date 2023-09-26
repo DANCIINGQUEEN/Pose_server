@@ -16,8 +16,11 @@ router
     .delete('/deleteTeamNotice/:teamId/:noticeId', teamController.deleteTeamNotice)
     .put('/updateTeamNotice/:teamId/:noticeId', teamController.updateTeamNotice)
 .post('/postTeamBoard/:teamId', teamController.postTeamBoard)
+    .delete('/deleteTeamBoard/:teamId/:boardId', teamController.deleteTeamBoard)
+    .put('/updateTeamBoard/:teamId/:boardId', teamController.updateTeamBoard)
 .get('/getTeamBoard/:teamId', teamController.getTeamBoard)
 .post('/postTeamBoardComment/:teamId', teamController.postBoardComment)
+    .delete('/deleteTeamBoardComment/:teamId/:boardId/:commentId', teamController.deleteTeamBoardComment)
 .get('/getTeamMembers/:teamId', teamController.getTeamMembers)
 
 module.exports= router;
