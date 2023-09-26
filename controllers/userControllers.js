@@ -410,21 +410,43 @@ const userControl = {
         }
     },
     deleteMyPost: async (req, res) => {
-        const {postId} = req.params;
         try{
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
+            const {postId} = req.params;
             const postUser = await User.findById(user._id).populate('post');
             const post = postUser.post.find(p => p._id.toString() === postId);
             if(!post) return res.status(404).json({message: 'Post not found'});
+
             const indexOfPost = postUser.post.indexOf(post);
             postUser.post.splice(indexOfPost, 1);
             await postUser.save();
-            console.log(indexOfPost)
+
+            // console.log(indexOfPost)
             return res.status(200).json({message: 'Post deleted successfully'});
         }  catch (e) {
             console.error(e)
         }
+    },
+    updateMyPost:async (req, res) => {
+        try{
+            const user=await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const {postId} = req.params;
+            const {content} = req.body;
+            const post=user.post.find(post=>post._id.toString()===postId);
+            console.log(post, postId, content)
+            post.content=content
+            await user.save();
+
+            res.status(200).json({msg:'success'})
+        }catch (e) {
+            console.error(e)
+            res.status(500).json(e)
+        }
+
     },
     updateUserExerciseAttain: async (req, res) => {
         try {

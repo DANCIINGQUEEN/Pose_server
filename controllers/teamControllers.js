@@ -316,13 +316,16 @@ const teamControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
             const team = await Team.findById(teamId).populate('freeBoard')
             const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
             if (!freeBoard) return res.status(404).json({msg: 'board not found'})
+
             freeBoard.postTitle = title
             freeBoard.postContent = content
             await team.save()
-            console.log(freeBoard.postTitle, freeBoard.postContent, title, content)
+
+            // console.log(freeBoard.postTitle, freeBoard.postContent, title, content)
             res.status(200).json({msg: 'success'})
         } catch (e) {
             console.error(e);
