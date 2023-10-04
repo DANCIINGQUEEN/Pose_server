@@ -74,7 +74,6 @@ const userControl = {
                 text: `인증 코드는 : ${verifyCode} 입니다.`,
             };
             await transporter.sendMail(mailOptions);
-            // console.log(verifyCode)
             res.status(200).json({state: true});
         } catch (error) {
             res.status(400)
@@ -176,18 +175,19 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
             const userToFollow = await User.findById(userIdToFollow);
-            if (!userToFollow) {
-                return res.status(404).json({message: 'User to follow not found'});
-            }
-            if (user.following.includes(userIdToFollow)) {
-                return res.status(400).json({message: 'User is already being followed'});
-            }
+            if (!userToFollow) return res.status(404).json({message: 'User to follow not found'});
+
+            if (user.following.includes(userIdToFollow)) return res.status(400).json({message: 'User is already being followed'});
+
             user.following.push(userIdToFollow);
             userToFollow.followers.push(user._id);
+
             await user.save();
             await userToFollow.save();
+
             const followingUsers = await User.find({_id: {$in: user.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
+
             res.status(200).json({following: user.following, followingNames: followingNames});
         } catch (error) {
             console.error(error);
@@ -211,6 +211,7 @@ const userControl = {
 
             const followingUsers = await User.find({_id: {$in: updatedUser.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
+
             res.status(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
         } catch (error) {
             console.error(error);
@@ -221,7 +222,6 @@ const userControl = {
         const {userId} = req.body
         try {
             const user = await User.findById(userId);
-
             if (!user) return res.status(404).json({message: 'User not found'});
             user.followers = [];
             await user.save();
@@ -235,6 +235,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
             const data = req.body;
             user.goal = {
                 dDay: data.userGoal.dDay,
@@ -252,6 +253,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
             const updatedUser = await User.findByIdAndUpdate(user._id, {$set: {goal: null}}, {new: true});
             res.status(200).json({user: updatedUser});
         } catch (error) {
@@ -264,8 +266,10 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
             const followingUsers = await User.find({_id: {$in: following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
+
             res.status(200).json({following: followingNames});
         } catch (error) {
             console.error(error);
@@ -277,8 +281,10 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
             const followerUsers = await User.find({_id: {$in: followers}});
             const followerNames = followerUsers.map((user) => [user._id, user.name, user.email]);
+
             res.status(200).json({followers: followerNames});
         } catch (error) {
             console.error(error);
@@ -298,11 +304,13 @@ const userControl = {
         await updateProfile(req, res, item)
     },
     isPasswordCorrect: async (req, res) => {
-        const {password} = req.body;
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
+            const {password} = req.body;
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
             res.status(200).json({state: isPasswordCorrect});
         } catch (error) {
             console.error(error);
@@ -312,22 +320,17 @@ const userControl = {
     updatePassword: async (req, res) => {
         const {newPassword} = req.body;
         const password = await bcrypt.hash(newPassword, 10);
-        const passwordUpdated = await updateProps(req, res, {password}, 'password');
-        console.log(passwordUpdated)
-        // passwordUpdated && res.status(200).json({state: true});
-        // console.log(newPassword, passwordUpdated)
-        // if (passwordUpdated) {
-        //     res.status(200).json({state: true});
-        // }
+        await updateProps(req, res, {password}, 'password');
         res.status(200).json({state: true, newPassword: newPassword})
-        // console.log(newPassword, password)
     },
     uploadPost: async (req, res) => {
         try {
-            const image = req.file
-            const {content, email} = req.body
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+
+            const image = req.file
+            const {content} = req.body
+
             const newPost = {
                 image: image.path, // 이미지 파일 이름
                 content: content,
@@ -337,11 +340,11 @@ const userControl = {
             }
             user.post.push(newPost)
             await user.save();
+
             res.status(200).json({message: 'Post uploaded successfully'});
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
-
         }
     },
     initialUserPost: async (req, res) => {
@@ -359,6 +362,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
             const followingUserIds = user.following;
             const followingPosts = await User.aggregate([
                 {$match: {_id: {$in: followingUserIds}}},
@@ -436,8 +440,9 @@ const userControl = {
 
             const {postId} = req.params;
             const {content} = req.body;
+
             const post=user.post.find(post=>post._id.toString()===postId);
-            console.log(post, postId, content)
+            // console.log(post, postId, content)
             post.content=content
             await user.save();
 
@@ -452,12 +457,15 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
             const {exercise, attain} = req.body;
+
             const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
-            // !exerciseGoal && res.status(404).json({message: 'EveryExercises goal not found'});
             if(!exerciseGoal) return res.status(404).json({message: 'EveryExercises goal not found'});
+
             exerciseGoal.attain = attain;
             await user.save();
+
             return res.status(200).json({message: 'Attain value updated successfully'});
         } catch (error) {
             console.error(error);
@@ -466,61 +474,91 @@ const userControl = {
     },
     postComment: async (req, res) => {
         try {
-            const {userId, postId, content} = req.body;
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
+            const {userId, postId, content} = req.body;
+
             const postUser = await User.findById(userId).populate('post');
-            // !user && res.status(404).json({message: 'User not found'});
             if(!user) return res.status(404).json({message: 'User not found'});
+
             const post = postUser.post.find(p => p._id.toString() === postId);
-            // !post && res.status(404).json({message: 'Post not found'});
             if(!post) return res.status(404).json({message: 'Post not found'});
+
             const newComment = {
                 user: user.name,
+                userId:user._id,
                 content: content,
             }
             post.comments.push(newComment);
             await postUser.save();
+
             res.status(200).json({message: 'Comment posted successfully'});
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
         }
     },
+    deletePostComment: async (req, res) => {
+        try{
+            const user=await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const {userId, postId, commentId} = req.params
+            const userPost = await User.findById(userId).populate('post');
+            if(!userPost) return res.status(404).json({message: 'User not found'});
+
+            const post = userPost.post.find(p => p._id.toString() === postId);
+            if(!post) return res.status(404).json({message: 'Post not found'});
+
+            const comment = post.comments.find(c => c._id.toString() === commentId);
+            if(!comment) return res.status(404).json({message: 'Comment not found'});
+
+            const indexOfComment = post.comments.indexOf(comment);
+            post.comments.splice(indexOfComment, 1);
+            await userPost.save();
+
+            res.status(200).json({msg:'success'})
+
+
+        }catch (e) {
+            console.error(e)
+        }
+
+    },
     initialUserPostComment: async (req, res) => {
         try {
             const {userId, postId} = req.body;
+
             const postUser = await User.findById(userId).populate('post');
-            if (!postUser) {
-                return res.status(404).json({message: 'User not found'});
-            }
+            if (!postUser) return res.status(404).json({message: 'User not found'});
+
             const post = postUser.post.find(p => p._id.toString() === postId);
-            if (!post) {
-                return res.status(404).json({message: 'Post not found'});
-            }
+            if (!post) return res.status(404).json({message: 'Post not found'});
+
             post.comments = [];
             await postUser.save();
-        } catch (error) {
-            console.error(error);
+        } catch (e) {
+            console.error(e);
             res.status(500).json({error: 'Internal server error'});
         }
     },
     postHeart: async (req, res) => {
         try {
-            const {userId, postId} = req.body;
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
+            const {userId, postId} = req.body;
             const postUser = await User.findById(userId).populate('post');
-            if (!postUser) {
-                return res.status(404).json({message: 'User not found'});
-            }
+            if (!postUser) return res.status(404).json({message: 'User not found'});
+
             const post = postUser.post.find(p => p._id.toString() === postId);
-            if (!post) {
-                return res.status(404).json({message: 'Post not found'});
-            }
+            if (!post) return res.status(404).json({message: 'Post not found'});
+
             const indexOfName = post.likes.indexOf(user.name);
             indexOfName !== -1 ? post.likes.splice(indexOfName, 1) : post.likes.push(user.name);
             await postUser.save();
+
             res.status(200).json({mgs: 'success'});
         } catch (error) {
             console.error(error);
@@ -531,8 +569,10 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
+
             const followingUserIds = user.following;
             const followingUsers = await User.find({_id: {$in: followingUserIds}});
+
             const followingUsersExerciseStatus = followingUsers.map(user => {
                 const {name, goal} = user;
                 return {

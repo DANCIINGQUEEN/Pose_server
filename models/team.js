@@ -51,7 +51,6 @@ const teamSchema = new mongoose.Schema({
     hashtag: [{type: String, required: true}],
     description: {type: String, required: true},
     host: {type: hostSchema, required: true},
-    likes: [{type: String, required: false}],
     members: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
     notice: [{type: noticeSchema, required: false}],
     freeBoard: [{type: freeBoardSchema, required: false}],
