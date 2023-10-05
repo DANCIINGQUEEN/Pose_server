@@ -324,27 +324,22 @@ const userControl = {
         res.status(200).json({state: true, newPassword: newPassword})
     },
     uploadPost: async (req, res) => {
-        try {
-            const user = await getUserFromToken(req)
+        try{
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const image = req.file
-            const {content} = req.body
+            const {fileName, content}=req.body
 
+            // console.log(fileName, content)
             const newPost = {
-                image: image.path, // 이미지 파일 이름
+                image: fileName, // 이미지 파일 이름
                 content: content,
-                date: new Date(),
-                likes: [],
-                comments: []
             }
             user.post.push(newPost)
             await user.save();
-
             res.status(200).json({message: 'Post uploaded successfully'});
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({message: 'Internal Server Error'});
+        }catch (e) {
+            console.error(e)
         }
     },
     initialUserPost: async (req, res) => {
@@ -585,7 +580,8 @@ const userControl = {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
         }
-    }
+    },
+
 
 
 }
