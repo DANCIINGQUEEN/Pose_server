@@ -144,6 +144,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
+            console.log(user)
             res.status(200).json(user);
         }
         catch(error){
@@ -569,8 +570,9 @@ const userControl = {
             const followingUsers = await User.find({_id: {$in: followingUserIds}});
 
             const followingUsersExerciseStatus = followingUsers.map(user => {
-                const {name, goal} = user;
+                const {name, goal, _id} = user;
                 return {
+                    _id,
                     name,
                     goal
                 }
@@ -581,6 +583,64 @@ const userControl = {
             res.status(500).json({error: 'Internal server error'});
         }
     },
+    getOtherUserInfo: async (req, res) => {
+        try{
+            const user= await getUserFromToken(req);
+            checkUserExists(user, res);
+            const {userId}=req.params;
+
+            let userInfo=await User.findById(userId)
+            console.log(userInfo.setting)
+            const isPublic=userInfo.setting
+
+            userInfo={
+                name: userInfo.name,
+                email: userInfo.email,
+                followers: isPublic.isFollowPublic?userInfo.followers:null,
+                following: isPublic.isFollowPublic?userInfo.following:null,
+                age: isPublic.isAgePublic?userInfo.age:null,
+                area: isPublic.isAreaPublic?userInfo.area:null,
+                weight: isPublic.isWeightPublic?userInfo.weight:null,
+                height: isPublic.isHeightPublic?userInfo.height:null,
+                exercise: isPublic.isExercisePublic?userInfo.exercise:null,
+                wishList: isPublic.isWishListPublic?userInfo.wishList:null,
+                post: isPublic.isPostPublic?userInfo.post:[],
+            }
+            res.status(200).json(userInfo)
+
+        }catch (e) {
+            console.error(e)
+        }
+    },
+    getOtherUserFollowersFollowing: async (req, res) => {
+        try{
+            const user= await getUserFromToken(req);
+            checkUserExists(user, res);
+            const {follow}=req.body;
+
+            const followList = await User.find({_id: {$in: follow}});
+            const followInfos = followList.map((user) => [user._id, user.name, user.email]);
+
+            res.status(200).json({followInfos})
+        }catch (e) {
+            console.error(e)
+        }
+    },
+    updateInformationPublic:async (req, res) => {
+        try{
+            const user= await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const {isPublic, item}=req.body;
+
+            user.setting[item]=isPublic
+            await user.save()
+            res.status(200).json({msg:'success'})
+        }catch (e) {
+            console.error(e)
+        }
+    }
+
 
 
 

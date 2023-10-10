@@ -48,5 +48,7 @@ router
     .delete('/deleteUserPost', userController.initialUserPost)
     .get('/getMyPosts', userController.getMyPosts)
     .get('/getFollowersExercisesStatus', userController.getFollowersExercisesStatus)
-
+    .get('/getOtherUserInfo/:userId', userController.getOtherUserInfo)
+    .post('/getOtherUserFollowersFollowing', userController.getOtherUserFollowersFollowing)
+    .put('/updateInformationPublic', userController.updateInformationPublic)
 module.exports = router;

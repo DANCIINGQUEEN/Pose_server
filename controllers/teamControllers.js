@@ -328,6 +328,7 @@ const teamControl = {
             if (!freeBoard) return res.status(404).json({msg: 'board not found'})
 
             if (freeBoard.authorId.toString() !== user._id.toString()) return res.status(403).json({msg: 'not authorized'})
+
             const indexOfBoard = team.freeBoard.indexOf(freeBoard)
             team.freeBoard.splice(indexOfBoard, 1)
             await team.save()

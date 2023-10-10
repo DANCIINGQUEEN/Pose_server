@@ -1,5 +1,16 @@
 const mongoose = require('mongoose')
 
+const userSettingSchema = new mongoose.Schema({
+    isFollowPublic: {type: Boolean, default:false, required: true},
+    isAgePublic: {type: Boolean, default:false, required: true},
+    isAreaPublic: {type: Boolean, default:false, required: true},
+    isWeightPublic: {type: Boolean, default:false, required: true},
+    isHeightPublic: {type: Boolean, default:false, required: true},
+    isExercisePublic: {type: Boolean, default:false, required: true},
+    isWishListPublic: {type: Boolean, default:false, required: true},
+    isPostPublic: {type: Boolean, default:false, required: true},
+})
+
 const goalSchema = new mongoose.Schema({
     dDay: {type: Date, required: true},
     goals: [{
@@ -35,7 +46,19 @@ const userSchema = new mongoose.Schema({
     following: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
     goal: {type: goalSchema, required: false},
     post: [{type: userPostSchema, required: false}],
-    team: [{type: mongoose.Schema.Types.ObjectId, ref: 'team'}]
+    team: [{type: mongoose.Schema.Types.ObjectId, ref: 'team'}],
+    setting: {type: userSettingSchema,
+        default: {
+            isPublic: false ,
+            isFollowPublic: false,
+            isAgePublic: false,
+            isAreaPublic: false,
+            isWeightPublic: false,
+            isHeightPublic: false,
+            isExercisePublic: false,
+            isWishListPublic: false,
+        },
+        required: false},
 })
 
 mongoose.model('user', userSchema)
