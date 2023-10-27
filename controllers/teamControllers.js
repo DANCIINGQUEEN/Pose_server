@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model('user')
 const Team = mongoose.model('team')
 const jwt = require('jsonwebtoken')
+const {log} = require("debug");
 // const {checkUserExists, getUserFromToken} = require('./userControllers')
 const getUserFromToken = async (req) => {
     const token = req.headers.authorization.split(' ')[1];
@@ -52,7 +53,7 @@ const teamControl = {
 
             const userTeamIds = user.team.map(team => team._id);
 
-            const teams = await Team.find({_id: { $nin: userTeamIds }});
+            const teams = await Team.find({_id: {$nin: userTeamIds}});
 
             const teamInfo = teams.map(team => ({
                 _id: team._id,
@@ -75,12 +76,13 @@ const teamControl = {
 
             const {teamId} = req.body;
 
-            const team = await Team.findById(teamId);
-            user.team.push(teamId);
+            const team = await Team.findById(teamId.teamId);
+            user.team.push(teamId.teamId);
             team.members.push(user._id)
 
             await user.save();
             await team.save();
+            console.log(team)
             res.status(200).json({mgs: 'success'})
         } catch (error) {
             console.error(error);
@@ -372,8 +374,8 @@ const teamControl = {
             const freeBoard = await Team.find({_id: teamId}, {freeBoard: 1})
             const anonymousBoard = await Team.find({_id: teamId}, {anonymousBoard: 1})
 
-            const newFreeBoard=freeBoard[0].freeBoard.reverse()
-            const newAnonymousBoard=anonymousBoard[0].anonymousBoard.reverse()
+            const newFreeBoard = freeBoard[0].freeBoard.reverse()
+            const newAnonymousBoard = anonymousBoard[0].anonymousBoard.reverse()
             // console.log({freeBoard, anonymousBoard})
             res.status(200).json({newFreeBoard, newAnonymousBoard})
         } catch (e) {
@@ -458,8 +460,79 @@ const teamControl = {
             console.error(e)
             res.status(500).json(e)
         }
-    }
+    },
+    getTeamMembersExerciseStatus: async (req, res) => {
+        try {
+            const {teamId} = req.params;
 
+            const team = await Team.findById(teamId)
+
+            const members = await User.find({_id: {$ne: team.host.hostId, $in: team.members}})
+            const membersExerciseStatus = members.map(member => ({
+                _id: member._id,
+                name: member.name,
+                exercise: member.goal
+            }))
+            let host = await User.findById(team.host.hostId)
+            const hostExerciseStatus = {
+                _id: host._id,
+                name: host.name,
+                exercise: host.goal
+            }
+            membersExerciseStatus.push(hostExerciseStatus)
+            res.status(200).json(membersExerciseStatus)
+        } catch (e) {
+            console.error(e)
+            res.status(500).json(e)
+        }
+    },
+    getJoinedTeamInfo: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
+            checkUserExists(user, res);
+
+            const myTeams = await Team.find({_id: {$in: user.team}})
+            // const myTeamInfo = myTeams.map(team => ({
+            //     _id: team._id,
+            //     name: team.name,
+            //     notice: team.notice[team.notice.length - 1],
+            //     freeBoard: team.freeBoard[team.freeBoard.length - 1],
+            //     anonymousBoard: team.anonymousBoard[team.anonymousBoard.length - 1],
+            //
+            // }))
+            //
+            // const myTeamMembers = myTeams.map(team => ({
+            //     members: team.members
+            // }))
+            // let memberInfo = {}
+            //
+            // for (const members of myTeamMembers) {
+            //     const memberDetails = await User.find({_id: {$in: members.members}}, '_id name goal');
+            //     memberInfo = {
+            //         ...memberInfo,
+            //         [members.members.toString()]: memberDetails
+            //     };
+            // }
+            // res.status(200).json({myTeamInfo, memberInfo})
+            const teamInfoArray = await Promise.all(myTeams.map(async team => {
+                const memberDetails = await User.find({_id: {$in: team.members}}, '_id name goal');
+                return {
+                    _id: team._id,
+                    name: team.name,
+                    description: team.description,
+                    notice: team.notice[team.notice.length - 1],
+                    freeBoard: team.freeBoard[team.freeBoard.length - 1],
+                    anonymousBoard: team.anonymousBoard[team.anonymousBoard.length - 1],
+                    members: memberDetails
+                };
+            }));
+
+            res.status(200).json(teamInfoArray);
+        } catch (e) {
+            console.error(e)
+            res.status(500).json(e)
+        }
+    }
 }
 
 module.exports = teamControl;

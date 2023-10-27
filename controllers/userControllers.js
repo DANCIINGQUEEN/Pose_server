@@ -9,16 +9,16 @@ require('dotenv').config()
 const getUserFromToken = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
+        if (!token) return res.status(401).json({message: 'No token, authorization denied'});
         const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
         const userId = decodedToken._id;
         const user = await User.findById(userId);
         return user;
     } catch (error) {
         if (error.name === 'JsonWebTokenError' && error.message === 'jwt malformed') {
-            return res.status(401).json({ message: 'Malformed token, authorization denied' });
+            return res.status(401).json({message: 'Malformed token, authorization denied'});
         }
-        return res.status(500).json({ message: 'Internal Server Error' });
+        return res.status(500).json({message: 'Internal Server Error'});
     }
 };
 const checkUserExists = (user, res) => {
@@ -124,17 +124,36 @@ const userControl = {
     login: async (req, res) => {
         try {
             const {email, password} = req.body.form
-            const user = await User.findOne({email: email})
+
+            let user = await User.findOne({email: email})
             if (!user) return res.status(401).json({message: 'Invalid email'})
+
             const isMatch = await bcrypt.compare(password, user.password)
             if (!isMatch) return res.status(402).json({message: 'Invalid password'})
+
             const token = jwt.sign({
                 _id: user._id,
                 email: user.email,
                 name: user.name,
                 currentTime: Math.floor(Date.now() / 1000)
             }, process.env.REACT_APP_JWT_SECRET)
-            return res.status(200).json({token})
+
+            user={
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                age: user.age,
+                area: user.area,
+                weight: user.weight,
+                height: user.height,
+                exercise: user.exercise,
+                wishList: user.wishList,
+                followers: user.followers,
+                following: user.following,
+                goal: user.goal,
+                setting: user.setting,
+            }
+            return res.status(200).json({token, user})
         } catch (err) {
             console.error(err)
             return res.status(500).json({message: `Internal Server Error`})
@@ -144,10 +163,9 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-            console.log(user)
+            // console.log(user)
             res.status(200).json(user);
-        }
-        catch(error){
+        } catch (error) {
             console.error(error)
             res.status(401).json({message: 'Invalid token'});
         }
@@ -296,7 +314,7 @@ const userControl = {
         const {name, email} = req.body;
         const nameUpdated = await updateProps(req, res, {name}, 'name');
         const emailUpdated = await updateProps(req, res, {email}, 'email');
-        if(nameUpdated && emailUpdated){
+        if (nameUpdated && emailUpdated) {
             res.status(200).json({state: true});
         }
     },
@@ -325,11 +343,11 @@ const userControl = {
         res.status(200).json({state: true, newPassword: newPassword})
     },
     uploadPost: async (req, res) => {
-        try{
+        try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const {fileName, content}=req.body
+            const {fileName, content} = req.body
 
             // console.log(fileName, content)
             const newPost = {
@@ -339,7 +357,7 @@ const userControl = {
             user.post.push(newPost)
             await user.save();
             res.status(200).json({message: 'Post uploaded successfully'});
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
     },
@@ -410,14 +428,14 @@ const userControl = {
         }
     },
     deleteMyPost: async (req, res) => {
-        try{
+        try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
             const {postId} = req.params;
             const postUser = await User.findById(user._id).populate('post');
             const post = postUser.post.find(p => p._id.toString() === postId);
-            if(!post) return res.status(404).json({message: 'Post not found'});
+            if (!post) return res.status(404).json({message: 'Post not found'});
 
             const indexOfPost = postUser.post.indexOf(post);
             postUser.post.splice(indexOfPost, 1);
@@ -425,25 +443,25 @@ const userControl = {
 
             // console.log(indexOfPost)
             return res.status(200).json({message: 'Post deleted successfully'});
-        }  catch (e) {
+        } catch (e) {
             console.error(e)
         }
     },
-    updateMyPost:async (req, res) => {
-        try{
-            const user=await getUserFromToken(req);
+    updateMyPost: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
             const {postId} = req.params;
             const {content} = req.body;
 
-            const post=user.post.find(post=>post._id.toString()===postId);
+            const post = user.post.find(post => post._id.toString() === postId);
             // console.log(post, postId, content)
-            post.content=content
+            post.content = content
             await user.save();
 
-            res.status(200).json({msg:'success'})
-        }catch (e) {
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
             console.error(e)
             res.status(500).json(e)
         }
@@ -457,7 +475,7 @@ const userControl = {
             const {exercise, attain} = req.body;
 
             const exerciseGoal = user.goal.goals.find(goal => goal.label === exercise);
-            if(!exerciseGoal) return res.status(404).json({message: 'EveryExercises goal not found'});
+            if (!exerciseGoal) return res.status(404).json({message: 'EveryExercises goal not found'});
 
             exerciseGoal.attain = attain;
             await user.save();
@@ -476,14 +494,14 @@ const userControl = {
             const {userId, postId, content} = req.body;
 
             const postUser = await User.findById(userId).populate('post');
-            if(!user) return res.status(404).json({message: 'User not found'});
+            if (!user) return res.status(404).json({message: 'User not found'});
 
             const post = postUser.post.find(p => p._id.toString() === postId);
-            if(!post) return res.status(404).json({message: 'Post not found'});
+            if (!post) return res.status(404).json({message: 'Post not found'});
 
             const newComment = {
                 user: user.name,
-                userId:user._id,
+                userId: user._id,
                 content: content,
             }
             post.comments.push(newComment);
@@ -496,28 +514,28 @@ const userControl = {
         }
     },
     deletePostComment: async (req, res) => {
-        try{
-            const user=await getUserFromToken(req);
+        try {
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
             const {userId, postId, commentId} = req.params
             const userPost = await User.findById(userId).populate('post');
-            if(!userPost) return res.status(404).json({message: 'User not found'});
+            if (!userPost) return res.status(404).json({message: 'User not found'});
 
             const post = userPost.post.find(p => p._id.toString() === postId);
-            if(!post) return res.status(404).json({message: 'Post not found'});
+            if (!post) return res.status(404).json({message: 'Post not found'});
 
             const comment = post.comments.find(c => c._id.toString() === commentId);
-            if(!comment) return res.status(404).json({message: 'Comment not found'});
+            if (!comment) return res.status(404).json({message: 'Comment not found'});
 
             const indexOfComment = post.comments.indexOf(comment);
             post.comments.splice(indexOfComment, 1);
             await userPost.save();
 
-            res.status(200).json({msg:'success'})
+            res.status(200).json({msg: 'success'})
 
 
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
 
@@ -577,6 +595,7 @@ const userControl = {
                     goal
                 }
             })
+            // console.log(user)
             res.status(200).json({followingUsersExerciseStatus});
         } catch (error) {
             console.error(error);
@@ -584,64 +603,62 @@ const userControl = {
         }
     },
     getOtherUserInfo: async (req, res) => {
-        try{
-            const user= await getUserFromToken(req);
+        try {
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const {userId}=req.params;
+            const {userId} = req.params;
 
-            let userInfo=await User.findById(userId)
+            let userInfo = await User.findById(userId)
             console.log(userInfo.setting)
-            const isPublic=userInfo.setting
+            const isPublic = userInfo.setting
 
-            userInfo={
+            userInfo = {
                 name: userInfo.name,
                 email: userInfo.email,
-                followers: isPublic.isFollowPublic?userInfo.followers:null,
-                following: isPublic.isFollowPublic?userInfo.following:null,
-                age: isPublic.isAgePublic?userInfo.age:null,
-                area: isPublic.isAreaPublic?userInfo.area:null,
-                weight: isPublic.isWeightPublic?userInfo.weight:null,
-                height: isPublic.isHeightPublic?userInfo.height:null,
-                exercise: isPublic.isExercisePublic?userInfo.exercise:null,
-                wishList: isPublic.isWishListPublic?userInfo.wishList:null,
-                post: isPublic.isPostPublic?userInfo.post:[],
+                followers: isPublic.isFollowPublic ? userInfo.followers : null,
+                following: isPublic.isFollowPublic ? userInfo.following : null,
+                age: isPublic.isAgePublic ? userInfo.age : null,
+                area: isPublic.isAreaPublic ? userInfo.area : null,
+                weight: isPublic.isWeightPublic ? userInfo.weight : null,
+                height: isPublic.isHeightPublic ? userInfo.height : null,
+                exercise: isPublic.isExercisePublic ? userInfo.exercise : null,
+                wishList: isPublic.isWishListPublic ? userInfo.wishList : null,
+                post: isPublic.isPostPublic ? userInfo.post : [],
             }
             res.status(200).json(userInfo)
 
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
     },
     getOtherUserFollowersFollowing: async (req, res) => {
-        try{
-            const user= await getUserFromToken(req);
+        try {
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const {follow}=req.body;
+            const {follow} = req.body;
 
             const followList = await User.find({_id: {$in: follow}});
             const followInfos = followList.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({followInfos})
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
     },
-    updateInformationPublic:async (req, res) => {
-        try{
-            const user= await getUserFromToken(req);
+    updateInformationPublic: async (req, res) => {
+        try {
+            const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const {isPublic, item}=req.body;
+            const {isPublic, item} = req.body;
 
-            user.setting[item]=isPublic
+            user.setting[item] = isPublic
             await user.save()
-            res.status(200).json({msg:'success'})
-        }catch (e) {
+            res.status(200).json({msg: 'success'})
+        } catch (e) {
             console.error(e)
         }
     }
-
-
 
 
 }
