@@ -9,6 +9,7 @@ require('dotenv').config()
 const getUserFromToken = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
+        console.log(token)
         if (!token) return res.status(401).json({message: 'No token, authorization denied'});
         const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
         const userId = decodedToken._id;
@@ -484,6 +485,7 @@ const userControl = {
         } catch (error) {
             console.error(error);
             res.status(500).json({error: 'Internal server error'});
+            //c
         }
     },
     postComment: async (req, res) => {
