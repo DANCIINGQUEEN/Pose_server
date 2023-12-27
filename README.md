@@ -81,7 +81,7 @@
      
 
   ### 프로젝트 디렉터리 구조
-
+```
   Node.js
 
   server
@@ -101,3 +101,4 @@
   ├─app.js
   ├─package-lock.json
   ├─package.json
+```
