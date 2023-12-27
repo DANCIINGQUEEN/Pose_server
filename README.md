@@ -104,7 +104,76 @@
   └─package.json
 ```
 
+# Database - MongoDB
 
+## User Document
+
+- ### 기본 유저 databse - userSchema
+
+  | 필드 | 타입 |
+  | --- | --- |
+  | name | String |
+  | email | String |
+  | password | String |
+  | sex | String |
+  | area | String |
+  | height | String |
+  | weight | String |
+  | age | String |
+  | exercise | String |
+  | wishList | Array |
+  | followers | [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}] |
+  | following |  [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}] |
+  | goal | goalSchema |
+  | post | userPostSchema |
+  | team | [{type: mongoose.Schema.Types.ObjectId, ref: 'team'}] |
+  | setting | userSettingSchema |
+
+
+- ### 유저 피드
+
+  | 필드 | 타입 |
+  | --- | --- |
+  | image | String |
+  | content | String |
+  | date | date |
+  | likes| String |
+  | comments | |
+  | └─user | String |
+  |└─userId | mongoose.Schema.Types.ObjectId |
+  |└─content | String |
+
+
+
+- ### 유저 운동 목표
+
+    | 필드 | 타입 |
+    | --- | --- |
+    | dDay | Date |
+    | goals | |
+    |└─label | String |
+    |└─cycle | String |
+    |└─number | String |
+    |└─attain | String |
+  
+
+- ### 유저 정보 공개 여부
+
+    | 필드 | 타입 |
+    | --- | --- |
+    | isFollowPublic | Boolean |
+    | isAgePublic | Boolean |
+    | isAreaPublic | Boolean |
+    | isWeightPublic | Boolean |
+    | isHeightPublic | Boolean |
+    | isExercisePublic | Boolean |
+    | isWishListPublic | Boolean |
+    | isPostPublic | Boolean |
+  
+## Team Document
+
+- ### 메이트 팀 databse - teamSchema
+  
 # Conventions
 
 ## ⚙ 사용 기술
