@@ -122,9 +122,10 @@
 ### :pick: Development
 
 <div>
-    <img src="https://img.shields.io/badge/React-FFFFFF?style=flat&logo=react&logoColor=61DAFB">
+    <img src="https://img.shields.io/badge/Node.js-FFFFFF?style=flat&logo=react&logoColor=61DAFB">
     <img src="https://img.shields.io/badge/Firebase-FFFFFF?style=flat&logo=Firebase&logoColor=FFCA28">
-    <img src="https://img.shields.io/badge/Vercel-FFFFFF?style=flat&logo=vercel&logoColor=009639">
+    <img src="https://img.shields.io/badge/Koyeb-FFFFFF?style=flat&logo=vercel&logoColor=009639">
+  <img src="https://img.shields.io/badge/MongoDB-FFFFFF?style=flat&logo=mongodb&logoColor=4479A1">
 </div>
 
 <br />
