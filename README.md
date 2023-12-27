@@ -18,66 +18,66 @@
 
   - ### 유저 정보 api
     
-    | Method | api url | 기능 |
+    | method | api url | function description |
     | --- | --- | --- |
-    | post| /sendVerificationCode | 회원가입 시 유저의 이메일로 6자리 인증번호를 보냄 |
+    | get | /getUserFullInfo | 로그인 시 유저 정보 전달 |
+    | get | /getRecommendUsers | 팔로우 할 수 있는 메이트 리스트 전달 |
+    | get | /initialGoal | superuser가 특정 유저의 운동 목표를 초기화 |
+    | get | /getPosts | 팔로우한 메이트들의 게시글 피드 전달 |
+    | get | /getMyPosts | 유저가 작성한 유저의 게시글 불러오기 |
+    | get | /getFollowersExercisesStatus | 팔로우한 메이트들의 운동 상태 전달 |
+    | get | /getOtherUserInfo/:userId | 타 유저들의 정보 확인 |
+    | post | /sendVerificationCode | 회원가입 시 유저의 이메일로 6자리 인증번호를 보냄 |
     | post | /verifyCode | 유저가 전달받은 6자리 인증번호를 인증 |
     | post | /registerSimpleUser | 세부 정보를 입력하지 않고 이메일, 비밀번호로만 회원가입 |
     | post | /registerDetailUser | 세부 정보를 입력하고 회원가입|
     | post | /login | 로그인 |
-    | get | /getUserFullInfo | 로그인 시 유저 정보 전달 |
-    | get | /getRecommendUsers | 팔로우 할 수 있는 메이트 리스트 전달 |
     | post | /followUser | 메이트 팔로우 |
     | post | /goalSetting | 운동 목표 설정 |
     | post | /getFollowers | 유저가 팔로우한 메이트 목록 전달 |
     | post | /getFollowing | 유저를 팔로잉하는 메이트 목록 전달 |
-    | put | /updateProfile | 유저 정보 수정 |
-    | put | /updateInformation | 유저 세부 정보 수정 |
     | post | /isPasswordCorrect | 유저 정보 수정 시 비밀번호 재확인 |
-    | put | /updatePassword | 유저 비밀번호 수정 |
     | post | /getUnfollow | 메이트 언팔로우 |
-    | delete | /deleteFollowers | superuser가 특정 유저의 팔로우 리스트를 초기화 |
-    | get | /initialGoal | superuser가 특정 유저의 운동 목표를 초기화 |
     | post | /uploadPost | 게시글 업로드(사진, 글) |
-    | delete | /deleteMyPost/:postId | 게시글 삭제 |
-    | put | /updateMyPost/:postId | 게시글 수정 |
-    | get | /getPosts | 팔로우한 메이트들의 게시글 피드 전달 |
     | post | /updateUserExerciseAttain | 운동 후 달성값 저장 |
     | post | /postUserPostComment | 게시글 댓글 등록 |
+    | post | /getOtherUserFollowersFollowing | 타 유저들의 팔로우, 팔로잉 목록 전달 |
+    | post | /postUserPostHeart | 게시글 좋아요 등록 |
+    | put | /updateProfile | 유저 정보 수정 |
+    | put | /updateInformation | 유저 세부 정보 수정 |
+    | put | /updatePassword | 유저 비밀번호 수정 |
+    | put | /updateMyPost/:postId | 게시글 수정 |
+    | put | /updateInformationPublic | 유저의 세부 정보를 타 유저들에게 공개 여부 설정 |
+    | delete | /deleteFollowers | superuser가 특정 유저의 팔로우 리스트를 초기화 |
+    | delete | /deleteMyPost/:postId | 게시글 삭제 |
     | delete | /deleteUserPostComment/:userId/:postId/:commentId | 게시글에 등록한 댓글 삭제 |
     | delete | /initialUserPostComment | superuser가 특정 게시글의 댓글 삭제 |
-    | post | /postUserPostHeart | 게시글 좋아요 등록 |
     | delete | /deleteUserPost | superuser가 특정 유저의 게시글 삭제 |
-    | get | /getMyPosts | 유저가 작성한 유저의 게시글 불러오기 |
-    | get | /getFollowersExercisesStatus | 팔로우한 메이트들의 운동 상태 전달 |
-    | get | /getOtherUserInfo/:userId | 타 유저들의 정보 확인 |
-    | post | /getOtherUserFollowersFollowing | 타 유저들의 팔로우, 팔로잉 목록 전달 |
-    | put | /updateInformationPublic | 유저의 세부 정보를 타 유저들에게 공개 여부 설정 |
 
   - ### 메이트 팀 api
 
-    | api url | 기능 |
-    | --- | --- |
-    | /createTeam | 새로운 메이트 팀 만들기 |
-    | /getAllTeams | 가입하지 않은 메이트 팀 목록 전달 |
-    | /joinTeam | 메이트 팀 가입 |
-    | /quitTeam/:teamId | 메이트 팀 탈퇴 |
-    | /deleteTeam/:teamId | 메이트 팀 방장이 팀 삭제 |
-    | /getJoinedTeams | 가입한팀 목록 전달 |
-    | /getTeamInfo/:teamId | 특정 팀의 정보 전달 |
-    | /postTeamNotice/:teamId | 특정 팀의 공지글 등록 |
-    | /getTeamNotice/:teamId | 특정 팀의 공지글들 전달 |
-    | /deleteTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 삭제 |
-    | /updateTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 수정 |
-    | /postTeamBoard/:teamId | 특정 팀의 게시판 글 등록(자유게시판, 익명게시판) |
-    | /updateTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 수정|
-    | /deleteTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 삭제 |
-    | /getTeamBoard/:teamId | 특정 팀의 게시판 글 전달 |
-    | /postTeamBoardComment/:teamId | 특정 팀의 게시판 게시글에 댓글 등록 |
-    | /deleteTeamBoardComment/:teamId/:boardId/:commentId | 특정 팀의 게시판에 유저가 등록한 댓글 삭제 |
-    | /getTeamMembers/:teamId | 특정 팀에 가입한 메이트 목록 전달 |
-    | /getTeamMembersExerciseStatus/:teamId | 특정 팀에 가입한 메이트들의 운동 상대 전달 |
-    | /getJoinedTeamInfo | 유저가 가입한 메이트 팀의 정보 전달 |
+    | method | api url | function description |
+    | --- | --- | --- |
+    | get | /getAllTeams | 가입하지 않은 메이트 팀 목록 전달 |
+    | get | /getJoinedTeams | 가입한팀 목록 전달 |
+    | get | /getTeamInfo/:teamId | 특정 팀의 정보 전달 |
+    | get | /getTeamNotice/:teamId | 특정 팀의 공지글들 전달 |
+    | get | /getTeamBoard/:teamId | 특정 팀의 게시판 글 전달 |
+    | get | /getTeamMembers/:teamId | 특정 팀에 가입한 메이트 목록 전달 |
+    | get | /getTeamMembersExerciseStatus/:teamId | 특정 팀에 가입한 메이트들의 운동 상대 전달 |
+    | get | /getJoinedTeamInfo | 유저가 가입한 메이트 팀의 정보 전달 |
+    | post | /createTeam | 새로운 메이트 팀 만들기 |
+    | post | /joinTeam | 메이트 팀 가입 |
+    | post | /postTeamNotice/:teamId | 특정 팀의 공지글 등록 |
+    | post | /postTeamBoard/:teamId | 특정 팀의 게시판 글 등록(자유게시판, 익명게시판) |
+    | post | /postTeamBoardComment/:teamId | 특정 팀의 게시판 게시글에 댓글 등록 |
+    | put | /updateTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 수정 |
+    | put | /updateTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 수정|
+    | delete | /quitTeam/:teamId | 메이트 팀 탈퇴 |
+    | delete | /deleteTeam/:teamId | 메이트 팀 방장이 팀 삭제 |
+    | delete | /deleteTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 삭제 |
+    | delete | /deleteTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 삭제 |
+    | delete | /deleteTeamBoardComment/:teamId/:boardId/:commentId | 특정 팀의 게시판에 유저가 등록한 댓글 삭제 |
      
 
   ## 프로젝트 디렉터리 구조
