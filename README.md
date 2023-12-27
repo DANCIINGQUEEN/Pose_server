@@ -98,6 +98,7 @@
   │  ├─error.jade
   │  ├─index.jade
   │  ├─layout.jade
+  ├─public
   ├─app.js
   ├─package-lock.json
   ├─package.json
