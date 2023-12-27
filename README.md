@@ -245,10 +245,10 @@
 ### :pick: Development
 
 <div>
-    <img src="https://img.shields.io/badge/Node.js-FFFFFF?style=flat&logo=node.js&logoColor=61DAFB">
-    <img src="https://img.shields.io/badge/Firebase-FFFFFF?style=flat&logo=Firebase&logoColor=FFCA28">
+    <img src="https://img.shields.io/badge/Node.js-6DA55F?style=flat&logo=node.js&logoColor=61DAFB">
+    <img src="https://img.shields.io/badge/Firebase-23039BE5?style=flat&logo=Firebase&logoColor=FFCA28">
     <img src="https://img.shields.io/badge/Koyeb-FFFFFF?style=flat&logo=koyeb&logoColor=009639">
-  <img src="https://img.shields.io/badge/MongoDB-FFFFFF?style=flat&logo=mongodb&logoColor=4479A1">
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=flat&logo=mongodb&logoColor=4479A1">
 </div>
 
 <br />
@@ -256,8 +256,8 @@
 ### :mega: Communication
 
 <div>
-    <img src="https://img.shields.io/badge/Kakaotalk-FFFFFF?style=flat&logo=kakaotalk&logoColor=0058CC">
-    <img src="https://img.shields.io/badge/Discord-FFFFFF?style=flat&logo=discord&logoColor=0058CC">
+    <img src="https://img.shields.io/badge/Kakaotalk-ffcd00?style=flat&logo=kakaotalk&logoColor=0058CC">
+    <img src="https://img.shields.io/badge/Discord-235865F2?style=flat&logo=discord&logoColor=0058CC">
 </div>
 
 <br />
