@@ -53,4 +53,30 @@
     | /getOtherUserInfo/:userId | 타 유저들의 정보 확인 |
     | /getOtherUserFollowersFollowing | 타 유저들의 팔로우, 팔로잉 목록 전달 |
     | /updateInformationPublic | 유저의 세부 정보를 타 유저들에게 공개 여부 설정 |
+
+  - ### 메이트 팀 api
+
+    | api url | 기능 |
+    | --- | --- |
+    | /createTeam | 새로운 메이트 팀 만들기 |
+    | /getAllTeams | 가입하지 않은 메이트 팀 목록 전달 |
+    | /joinTeam | 메이트 팀 가입 |
+    | /quitTeam/:teamId | 메이트 팀 탈퇴 |
+    | /deleteTeam/:teamId | 메이트 팀 방장이 팀 삭제 |
+    | /getJoinedTeams | 가입한팀 목록 전달 |
+    | /getTeamInfo/:teamId | 특정 팀의 정보 전달 |
+    | /postTeamNotice/:teamId | 특정 팀의 공지글 등록 |
+    | /getTeamNotice/:teamId | 특정 팀의 공지글들 전달 |
+    | /deleteTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 삭제 |
+    | /updateTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 수정 |
+    | /postTeamBoard/:teamId | 특정 팀의 게시판 글 등록(자유게시판, 익명게시판) |
+    | /updateTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 수정|
+    | /deleteTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 삭제 |
+    | /getTeamBoard/:teamId | 특정 팀의 게시판 글 전달 |
+    | /postTeamBoardComment/:teamId | 특정 팀의 게시판 게시글에 댓글 등록 |
+    | /deleteTeamBoardComment/:teamId/:boardId/:commentId | 특정 팀의 게시판에 유저가 등록한 댓글 삭제 |
+    | /getTeamMembers/:teamId | 특정 팀에 가입한 메이트 목록 전달 |
+    | /getTeamMembersExerciseStatus/:teamId | 특정 팀에 가입한 메이트들의 운동 상대 전달 |
+    | /getJoinedTeamInfo | 유저가 가입한 메이트 팀의 정보 전달 |
+     
     
