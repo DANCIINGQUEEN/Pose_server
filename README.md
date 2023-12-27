@@ -50,7 +50,7 @@
     | put | /updateInformationPublic | 유저의 세부 정보를 타 유저들에게 공개 여부 설정 |
     | delete | /deleteFollowers | superuser가 특정 유저의 팔로우 리스트를 초기화 |
     | delete | /deleteMyPost/:postId | 게시글 삭제 |
-    | delete | /deleteUserPostComment/:userId/:postId/:commentId | 게시글에 등록한 댓글 삭제 |
+    | delete | /deleteUserPostComment/</br>:userId/:postId/:commentId | 게시글에 등록한 댓글 삭제 |
     | delete | /initialUserPostComment | superuser가 특정 게시글의 댓글 삭제 |
     | delete | /deleteUserPost | superuser가 특정 유저의 게시글 삭제 |
 
@@ -77,7 +77,7 @@
     | delete | /deleteTeam/:teamId | 메이트 팀 방장이 팀 삭제 |
     | delete | /deleteTeamNotice/:teamId/:noticeId | 특정 팀에 유저가 작성한 공지글 삭제 |
     | delete | /deleteTeamBoard/:teamId/:boardId | 특정 팀에 유저가 작성한 게시글 삭제 |
-    | delete | /deleteTeamBoardComment/:teamId/:boardId/:commentId | 특정 팀의 게시판에 유저가 등록한 댓글 삭제 |
+    | delete | /deleteTeamBoardComment/:teamId/</br>:boardId/:commentId | 특정 팀의 게시판에 유저가 등록한 댓글 삭제 |
      
 
   ## 프로젝트 디렉터리 구조
