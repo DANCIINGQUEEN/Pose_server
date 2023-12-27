@@ -108,7 +108,7 @@
 
 ## User Document
 
-- ### 기본 유저 database - userSchema
+- ### 기본 유저 - userSchema
 
   | 필드 | 타입 |
   | --- | --- |
@@ -130,7 +130,7 @@
   | setting | [userSettingSchema] |
 
 
-- ### 유저 피드
+- ###  유저 포스트 - userPostSchema
 
   | 필드 | 타입 |
   | --- | --- |
@@ -145,7 +145,7 @@
 
 
 
-- ### 유저 운동 목표
+- ### 유저 운동 목표 - goalSchema
 
     | 필드 | 타입 |
     | --- | --- |
@@ -157,7 +157,7 @@
     |└─attain | String |
   
 
-- ### 유저 정보 공개 여부
+- ### 유저 정보 공개 여부 - userSettingSchema
 
     | 필드 | 타입 |
     | --- | --- |
@@ -172,7 +172,7 @@
   
 ## Team Document
 
-- ### 메이트 팀 database - teamSchema
+- ### 메이트 팀 - teamSchema
 
     | 필드 | 타입 |
     | --- | --- |
@@ -186,7 +186,7 @@
     | anonymousBoard | [anonymousBoardSchema] |
 
     
-- ### 팀장
+- ### 팀장 - hostSchema
   
    | 필드 | 타입 |
    | --- | --- |
@@ -194,7 +194,7 @@
    | hostId | ObjectId |
 
 
-- ### 익명게시판
+- ### 익명게시판 - anonymousBoardSchema 
 
     | 필드 | 타입 |
    | --- | --- |
@@ -204,7 +204,7 @@
     | comments | [String] |
     
 
-- ### 자유게시판
+- ### 자유게시판 - freeBoardSchema 
 
   | 필드 | 타입 |
    | --- | --- |
@@ -218,7 +218,7 @@
   | └─content | String |
   | └─userId | ObjectId |
 
-- ### 공지
+- ### 공지 - noticeSchema 
 
     | 필드 | 타입 |
    | --- | --- |
