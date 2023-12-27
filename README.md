@@ -108,7 +108,7 @@
 
 ## User Document
 
-- ### 기본 유저 databse - userSchema
+- ### 기본 유저 database - userSchema
 
   | 필드 | 타입 |
   | --- | --- |
@@ -122,12 +122,12 @@
   | age | String |
   | exercise | String |
   | wishList | Array |
-  | followers | [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}] |
-  | following |  [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}] |
+  | followers | [ObjectId] |
+  | following |  [ObjectId] |
   | goal | goalSchema |
-  | post | userPostSchema |
-  | team | [{type: mongoose.Schema.Types.ObjectId, ref: 'team'}] |
-  | setting | userSettingSchema |
+  | post | [userPostSchema] |
+  | team | [ObjectId] |
+  | setting | [userSettingSchema] |
 
 
 - ### 유저 피드
@@ -138,9 +138,9 @@
   | content | String |
   | date | date |
   | likes| String |
-  | comments | |
+  | comments | [ ] |
   | └─user | String |
-  |└─userId | mongoose.Schema.Types.ObjectId |
+  |└─userId | ObjectId |
   |└─content | String |
 
 
@@ -150,7 +150,7 @@
     | 필드 | 타입 |
     | --- | --- |
     | dDay | Date |
-    | goals | |
+    | goals | [ ] |
     |└─label | String |
     |└─cycle | String |
     |└─number | String |
@@ -172,7 +172,61 @@
   
 ## Team Document
 
-- ### 메이트 팀 databse - teamSchema
+- ### 메이트 팀 database - teamSchema
+
+    | 필드 | 타입 |
+    | --- | --- |
+    | name | String |
+    | hashtag | String |
+    | description | String |
+    | host | hostSchema |
+    | members | [ObjectId] |
+    | notice | [noticeSchema] |
+    | freeBoard | [freeBoardSchema] |
+    | anonymousBoard | [anonymousBoardSchema] |
+
+    
+- ### 팀장
+  
+   | 필드 | 타입 |
+   | --- | --- |
+   | hostName | String |
+   | hostId | ObjectId |
+
+
+- ### 익명게시판
+
+    | 필드 | 타입 |
+   | --- | --- |
+    | postTitle | String |
+    | postContent | String |
+    | likes | [String] |
+    | comments | [String] |
+    
+
+- ### 자유게시판
+
+  | 필드 | 타입 |
+   | --- | --- |
+  | postTitle | String |
+  | postContent | String |
+  | author | String |
+  | authorId | ObjectId |
+  | likes | [ObjectId] |
+  | comments | [ ] |
+  | └─user | String |
+  | └─content | String |
+  | └─userId | ObjectId |
+
+- ### 공지
+
+    | 필드 | 타입 |
+   | --- | --- |
+  | noticeTitle | String |
+  | noticeContent | String |
+  | author | String |
+  | authorId | ObjectId |
+  
   
 # Conventions
 
