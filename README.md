@@ -19,6 +19,7 @@
   - ### 유저 정보 api
     
     | 함수명 | 기능 |
+    | --- | --- |
     | sendVerificationCode | 회원가입 시 유저의 이메일로 6자리 인증번호를 보냄 |
     | verifyCode | 유저가 전달받은 6자리 인증번호를 인증 |
     | registerSimpleUser | 세부 정보를 입력하지 않고 이메일, 비밀번호로만 회원가입 |
