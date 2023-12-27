@@ -16,7 +16,7 @@
 
 # **운동메이트** 서버 api
 
-  - ### 유저 정보 api
+  - ### 유저 정보 api - /user router
     
     | method | api url | function description |
     | --- | --- | --- |
@@ -54,7 +54,7 @@
     | delete | /initialUserPostComment | superuser가 특정 게시글의 댓글 삭제 |
     | delete | /deleteUserPost | superuser가 특정 유저의 게시글 삭제 |
 
-  - ### 메이트 팀 api
+  - ### 메이트 팀 api - /team router
 
     | method | api url | function description |
     | --- | --- | --- |
