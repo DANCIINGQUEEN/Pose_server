@@ -53,4 +53,15 @@
     | updateInformationPublic | 유저의 세부 정보를 타 유저들에게 공개 여부 설정 |
     
     
-    
+      | 타입 | 설명 |
+        | --- | --- |
+        | Feat | 새로운 기능 추가 |
+        | Add | 파일 추가 |
+        | Modify | 파일 수정 |
+        | Delete | 파일 삭제 |
+        | Move | 파일 이동 |
+        | Fix | 버그 수정 |
+        | Test | 테스트 |
+        | Correct | 문법 오류 및 오타 수정 |
+        | Refactor | 리팩토링 |
+        | Misc | 기타 |
