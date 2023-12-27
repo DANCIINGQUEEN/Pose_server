@@ -11,4 +11,4 @@
 
   
 # 시스템 구성도
-![시스템구성도](./exec/시스템 구성도.png)
+![system-diagram](./exec/system-diagram.png)
