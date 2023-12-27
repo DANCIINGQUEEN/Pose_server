@@ -264,7 +264,7 @@
 
 ## 채팅 socket.io 서버
 
-```
+```javascript
 
 const io = new Server(server, {
         path: '/chat',
