@@ -79,4 +79,25 @@
     | /getTeamMembersExerciseStatus/:teamId | 특정 팀에 가입한 메이트들의 운동 상대 전달 |
     | /getJoinedTeamInfo | 유저가 가입한 메이트 팀의 정보 전달 |
      
-    
+
+  ### 프로젝트 디렉터리 구조
+
+  Node.js
+
+  server
+  ├─controllers
+  │  ├─teamController.js
+  │  ├─userController.js
+  ├─routes
+  │  ├─teams.js
+  │  ├─users.js
+  ├─models
+  │  ├─team.js
+  │  ├─user.js
+  ├─views
+  │  ├─error.jade
+  │  ├─index.jade
+  │  ├─layout.jade
+  ├─app.js
+  ├─package-lock.json
+  ├─package.json
