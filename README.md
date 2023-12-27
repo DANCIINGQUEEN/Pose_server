@@ -80,7 +80,7 @@
     | /getJoinedTeamInfo | 유저가 가입한 메이트 팀의 정보 전달 |
      
 
-  ### 프로젝트 디렉터리 구조
+  ## 프로젝트 디렉터리 구조
 ```
   Node.js
 
@@ -260,3 +260,34 @@
 </div>
 
 <br />
+
+## 채팅 socket.io 서버
+
+```
+javaScript
+
+const io = new Server(server
+    , {
+        path: '/chat',
+        cors: {
+            origin: [
+                'http://localhost:3000',
+                'https://pose2team.vercel.app']
+        },
+    }
+);
+
+io.on("connection", (socket) => {
+    console.log(`User Connected: ${socket.id}`);
+
+    socket.on("join_room", (data) => {
+        socket.join(data);
+    });
+
+    socket.on("send_message", (data) => {
+        socket.to(data.room).emit("receive_message", data);
+        console.log(data)
+    });
+});
+
+```
