@@ -266,8 +266,7 @@
 ```
 javaScript
 
-const io = new Server(server
-    , {
+const io = new Server(server, {
         path: '/chat',
         cors: {
             origin: [
