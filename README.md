@@ -103,3 +103,36 @@
   ├─package-lock.json
   ├─package.json
 ```
+
+
+#Conventions
+
+## ⚙ 사용 기술
+
+### :earth_africa: Environment
+
+<div>
+    <img src="https://img.shields.io/badge/Git-FFFFFF?style=flat&logo=Git&logoColor=F05032">
+    <img src="https://img.shields.io/badge/Visual Studio Code-FFFFFF?style=flat&logo=visualstudiocode&logoColor=007ACC">
+    <img src="https://img.shields.io/badge/InteliJ-FFFFFF?style=flat&logo=intellijidea&logoColor=000000">
+</div>
+
+<br />
+
+### :pick: Development
+
+<div>
+    <img src="https://img.shields.io/badge/React-FFFFFF?style=flat&logo=react&logoColor=61DAFB">
+    <img src="https://img.shields.io/badge/Firebase-FFFFFF?style=flat&logo=Firebase&logoColor=FFCA28">
+    <img src="https://img.shields.io/badge/Vercel-FFFFFF?style=flat&logo=vercel&logoColor=009639">
+</div>
+
+<br />
+
+### :mega: Communication
+
+<div>
+    <img src="https://img.shields.io/badge/Kakaotalk-FFFFFF?style=flat&logo=Mattermost&logoColor=0058CC">
+</div>
+
+<br />
