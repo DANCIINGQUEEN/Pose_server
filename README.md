@@ -101,7 +101,7 @@
   ├─public
   ├─app.js
   ├─package-lock.json
-  ├─package.json
+  └─package.json
 ```
 
 
