@@ -249,6 +249,7 @@
     <img src="https://img.shields.io/badge/Firebase-23039BE5?style=flat&logo=Firebase&logoColor=FFCA28">
     <img src="https://img.shields.io/badge/Koyeb-FFFFFF?style=flat&logo=koyeb&logoColor=009639">
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=flat&logo=mongodb&logoColor=4479A1">
+   <img src="https://img.shields.io/badge/Express.js-4EA94B?style=flat&logo=express&logoColor=4479A1">
 </div>
 
 <br />
