@@ -1,8 +1,12 @@
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
+// const jwt = require('jsonwebtoken')
+// const {log} = require("debug");
+
+import mongoose from 'mongoose'
+import jwt from 'jsonwebtoken'
+import log from 'debug'
 const User = mongoose.model('user')
 const Team = mongoose.model('team')
-const jwt = require('jsonwebtoken')
-const {log} = require("debug");
 // const {checkUserExists, getUserFromToken} = require('./userControllers')
 const getUserFromToken = async (req) => {
     const token = req.headers.authorization.split(' ')[1];
@@ -535,4 +539,5 @@ const teamControl = {
     }
 }
 
-module.exports = teamControl;
+// module.exports = teamControl;
+export default teamControl;

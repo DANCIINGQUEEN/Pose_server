@@ -1,7 +1,9 @@
-const express = require('express');
+// const express = require('express');
+// const router = express.Router();
+// const teamController = require('../controllers/teamControllers');
+import express from 'express'
+import teamController from '../controllers/teamControllers.js'
 const router = express.Router();
-const teamController = require('../controllers/teamControllers');
-
 
 router
     .post('/createTeam', teamController.createMateTeam)
@@ -25,4 +27,5 @@ router
     .get('/getTeamMembersExerciseStatus/:teamId', teamController.getTeamMembersExerciseStatus)
     .get('/getJoinedTeamInfo', teamController.getJoinedTeamInfo)
 
-module.exports = router;
+// module.exports = router;
+export default router;

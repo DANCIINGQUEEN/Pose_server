@@ -1,18 +1,33 @@
 //패키지 임포트
-const createError = require('http-errors');
-const express = require('express');
-const app = express();
-const debug = require('debug')('server:server');
-const http = require('http');
-const {Server} = require("socket.io")
+// const createError = require('http-errors');
+// const express = require('express');
+// const app = express();
+// const debug = require('debug')('server:server');
+// const http = require('http');
+// const {Server} = require("socket.io")
 
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const cors = require('cors')
+// const path = require('path');
+// const cookieParser = require('cookie-parser');
+// const logger = require('morgan');
+// const cors = require('cors')
 
-const mongoose = require('mongoose')
-require('dotenv').config()
+// const mongoose = require('mongoose')
+// require('dotenv').config()
+
+import createError from 'http-errors'
+import express from 'express'
+import debug from 'debug'
+import http from 'http'
+import {Server} from "socket.io"
+import path from 'path'
+import cookieParser from 'cookie-parser'
+import logger from 'morgan'
+import cors from 'cors'
+import mongoose from 'mongoose'
+import dotenv from 'dotenv'
+dotenv.config()
+debug('server:server')
+const app = express()
 
 
 //CORS 옵션
@@ -27,22 +42,22 @@ let corsOptions = {
 }
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+// app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 //몽고db셋업
 mongoose.Promise = global.Promise
-dbUrl = process.env.REACT_APP_MONGODB_URL
+const dbUrl = process.env.REACT_APP_MONGODB_URL
 mongoose.connect(dbUrl, {useNewUrlParser: true})
 mongoose.set('strictQuery', false)
 const db = mongoose.connection
-//d
+
 db.on('connected', function () {
     console.log('server connected')
 })
@@ -56,14 +71,20 @@ db.on('disconnect', function () {
 
 
 //db 컬렉션 임포트
-require('./models/user')
-require('./models/index')
-require('./models/team')
+// require('./models/user')
+// require('./models/index')
+// require('./models/team')
+import './models/user.js'
+import './models/index.js'
+import './models/team.js'
 
 //라우터 임포트
-const indexRouter = require('./routes/indexs');
-const usersRouter = require('./routes/users');
-const teamRouter = require('./routes/teams');
+// const indexRouter = require('./routes/indexs');
+// const usersRouter = require('./routes/users');
+// const teamRouter = require('./routes/teams');
+import indexRouter from './routes/indexs.js'
+import usersRouter from './routes/users.js'
+import teamRouter from './routes/teams.js'
 
 //라우터 설정
 app.use('/index', indexRouter);

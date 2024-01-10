@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+import mongoose from 'mongoose'
+
 
 const noticeSchema = new mongoose.Schema({
     noticeTitle: {type: String, required: true},

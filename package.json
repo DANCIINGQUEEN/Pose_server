@@ -2,6 +2,9 @@
   "name": "server",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "main": "app.js",
+  "description": "Park's Node.js Server",
   "scripts": {
     "start": "nodemon app.js"
   },

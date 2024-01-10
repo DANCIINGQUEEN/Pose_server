@@ -1,10 +1,15 @@
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
+// const nodemailer = require('nodemailer')
+// const jwt = require('jsonwebtoken')
+// const bcrypt = require('bcrypt')
+import mongoose from 'mongoose'
+import nodemailer from 'nodemailer'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+import dotenv from 'dotenv'
 const User = mongoose.model('user')
-const nodemailer = require('nodemailer')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
 
-require('dotenv').config()
+// require('dotenv').config()
 
 const getUserFromToken = async (req, res) => {
     try {
@@ -665,4 +670,5 @@ const userControl = {
 
 }
 
-module.exports = userControl
+// module.exports = userControl
+export default userControl

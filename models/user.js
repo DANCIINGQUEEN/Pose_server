@@ -1,4 +1,6 @@
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
+import mongoose from 'mongoose'
+
 
 const userSettingSchema = new mongoose.Schema({
     isFollowPublic: {type: Boolean, default:false, required: true},
