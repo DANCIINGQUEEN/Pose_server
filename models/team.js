@@ -1,5 +1,5 @@
-// const mongoose = require('mongoose');
 import mongoose from 'mongoose'
+import poseDB from '../poseDatabase.js'
 
 
 const noticeSchema = new mongoose.Schema({
@@ -61,4 +61,6 @@ const teamSchema = new mongoose.Schema({
     chat: [{type: chatSchema, required: false}],
 })
 
-mongoose.model('team', teamSchema)
+// mongoose.model('team', teamSchema)
+const teamModel = poseDB.model('team', teamSchema);
+export default teamModel;

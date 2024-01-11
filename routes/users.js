@@ -1,12 +1,6 @@
-// const express = require('express');
-// const router = express.Router();
-// const userController = require('../controllers/userControllers');
-// const multer = require('multer')
-// const path = require('path')
 import express from 'express'
 import userController from '../controllers/userControllers.js'
 import multer from 'multer'
-import path from 'path'
 const router = express.Router();
 
 
@@ -57,5 +51,4 @@ router
     .post('/getOtherUserFollowersFollowing', userController.getOtherUserFollowersFollowing)
     .put('/updateInformationPublic', userController.updateInformationPublic)
     
-// module.exports = router;
 export default router;

@@ -1,23 +1,20 @@
-// const mongoose = require('mongoose')
-// const jwt = require('jsonwebtoken')
-// const {log} = require("debug");
-
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
-import log from 'debug'
-const User = mongoose.model('user')
-const Team = mongoose.model('team')
-// const {checkUserExists, getUserFromToken} = require('./userControllers')
+// const UserModel = mongoose.model('user')
+import UserModel from '../models/user.js'
+// const TeamModel = mongoose.model('team')
+import TeamModel from '../models/team.js'
+
 const getUserFromToken = async (req) => {
     const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken._id;
-    const user = await User.findById(userId);
+    const user = await UserModel.findById(userId);
     return user;
 };
 const checkUserExists = (user, res) => {
     if (!user) {
-        return res.status(404).json({message: 'User not found'});
+        return res.status(404).json({message: 'UserModel not found'});
     }
 };
 
@@ -29,7 +26,7 @@ const teamControl = {
 
             const {teamName, hashtag, description} = req.body;
 
-            const newTeam = new Team({
+            const newTeam = new TeamModel({
                 name: teamName,
                 description: description,
                 hashtag: hashtag,
@@ -57,7 +54,7 @@ const teamControl = {
 
             const userTeamIds = user.team.map(team => team._id);
 
-            const teams = await Team.find({_id: {$nin: userTeamIds}});
+            const teams = await TeamModel.find({_id: {$nin: userTeamIds}});
 
             const teamInfo = teams.map(team => ({
                 _id: team._id,
@@ -80,7 +77,7 @@ const teamControl = {
 
             const {teamId} = req.body;
 
-            const team = await Team.findById(teamId.teamId);
+            const team = await TeamModel.findById(teamId.teamId);
             user.team.push(teamId.teamId);
             team.members.push(user._id)
 
@@ -100,13 +97,13 @@ const teamControl = {
 
             const {teamId} = req.params;
 
-            await User.findOneAndUpdate(
+            await UserModel.findOneAndUpdate(
                 {_id: user._id},
                 {$pull: {team: teamId}},
                 {new: true}
             );
 
-            const team = await Team.findById(teamId);
+            const team = await TeamModel.findById(teamId);
 
             const indexOfUserId = team.members.indexOf(user._id);
             team.members.splice(indexOfUserId, 1);
@@ -121,7 +118,7 @@ const teamControl = {
     deleteTeam: async (req, res) => {
         try {
             const {teamId} = req.params;
-            await Team.deleteOne({_id: teamId});
+            await TeamModel.deleteOne({_id: teamId});
             res.status(200).json({msg: 'success'})
         } catch (error) {
             console.error(error);
@@ -134,7 +131,7 @@ const teamControl = {
             checkUserExists(user, res);
 
             const myTeams = user.team.map(team => team.toString())
-            const myTeamsSimple = await Team.find({_id: {$in: myTeams}});
+            const myTeamsSimple = await TeamModel.find({_id: {$in: myTeams}});
 
             const myTeam = myTeamsSimple.map(team => ({
                 _id: team._id,
@@ -156,7 +153,7 @@ const teamControl = {
 
             const {teamId} = req.params;
 
-            const team = await Team.findById(teamId)
+            const team = await TeamModel.findById(teamId)
                 .populate({
                     path: 'name'
                 })
@@ -214,7 +211,7 @@ const teamControl = {
 
             const {teamId} = req.params;
 
-            const notice = await Team.find({_id: teamId}, {notice: 1})
+            const notice = await TeamModel.find({_id: teamId}, {notice: 1})
 
             res.status(200).json(notice[0].notice.reverse())
         } catch (e) {
@@ -231,7 +228,7 @@ const teamControl = {
             const {teamId} = req.params;
             const {title, content} = req.body;
 
-            const team = await Team.findById(teamId);
+            const team = await TeamModel.findById(teamId);
             const newNotice = {
                 noticeTitle: title,
                 noticeContent: content,
@@ -254,7 +251,7 @@ const teamControl = {
 
             const {teamId, noticeId} = req.params;
 
-            const team = await Team.findById(teamId).populate('notice')
+            const team = await TeamModel.findById(teamId).populate('notice')
 
             const notice = team.notice.find(notice => notice._id.toString() === noticeId)
             if (!notice) return res.status(404).json({msg: 'notice not found'})
@@ -278,7 +275,7 @@ const teamControl = {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const team = await Team.findById(teamId).populate('notice')
+            const team = await TeamModel.findById(teamId).populate('notice')
             const notice = team.notice.find(notice => notice._id.toString() === noticeId)
             if (!notice) return res.status(404).json({msg: 'notice not found'})
 
@@ -300,7 +297,7 @@ const teamControl = {
             const {teamId} = req.params;
             const {title, content, isAnonymous} = req.body;
 
-            const team = await Team.findById(teamId);
+            const team = await TeamModel.findById(teamId);
 
             const newBoard = {
                 postTitle: title,
@@ -328,7 +325,7 @@ const teamControl = {
 
             const {teamId, boardId} = req.params;
 
-            const team = await Team.findById(teamId).populate('freeBoard')
+            const team = await TeamModel.findById(teamId).populate('freeBoard')
 
             const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
             if (!freeBoard) return res.status(404).json({msg: 'board not found'})
@@ -354,7 +351,7 @@ const teamControl = {
             const {teamId, boardId} = req.params;
             const {title, content} = req.body;
 
-            const team = await Team.findById(teamId).populate('freeBoard')
+            const team = await TeamModel.findById(teamId).populate('freeBoard')
             const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
             if (!freeBoard) return res.status(404).json({msg: 'board not found'})
 
@@ -375,8 +372,8 @@ const teamControl = {
 
             const {teamId} = req.params;
 
-            const freeBoard = await Team.find({_id: teamId}, {freeBoard: 1})
-            const anonymousBoard = await Team.find({_id: teamId}, {anonymousBoard: 1})
+            const freeBoard = await TeamModel.find({_id: teamId}, {freeBoard: 1})
+            const anonymousBoard = await TeamModel.find({_id: teamId}, {anonymousBoard: 1})
 
             const newFreeBoard = freeBoard[0].freeBoard.reverse()
             const newAnonymousBoard = anonymousBoard[0].anonymousBoard.reverse()
@@ -395,7 +392,7 @@ const teamControl = {
             const {teamId} = req.params;
             const {boardId, comment, isAnonymous} = req.body;
 
-            const team = await Team.findById(teamId)
+            const team = await TeamModel.findById(teamId)
             if (!team) return res.status(404).json({msg: 'team not found'})
 
             const board = await (isAnonymous ? team.anonymousBoard : team.freeBoard).find(board => board._id.toString() === boardId);
@@ -424,7 +421,7 @@ const teamControl = {
 
             const {teamId, boardId, commentId} = req.params;
 
-            const team = await Team.findById(teamId).populate('freeBoard').populate('anonymousBoard')
+            const team = await TeamModel.findById(teamId).populate('freeBoard').populate('anonymousBoard')
             if (!team) return res.status(404).json({msg: 'team not found'})
 
             const freeBoard = team.freeBoard.find(board => board._id.toString() === boardId)
@@ -449,14 +446,14 @@ const teamControl = {
         try {
             const {teamId} = req.params;
 
-            const team = await Team.findById(teamId)
-            let members = await User.find({_id: {$ne: team.host.hostId, $in: team.members}})
+            const team = await TeamModel.findById(teamId)
+            let members = await UserModel.find({_id: {$ne: team.host.hostId, $in: team.members}})
 
             members = members.map(member => ({
                 _id: member._id,
                 name: member.name,
             }))
-            let host = await User.findById(team.host.hostId)
+            let host = await UserModel.findById(team.host.hostId)
 
             host = (({_id, name}) => ({_id, name}))(host);
             res.status(200).json({members, host})
@@ -469,15 +466,15 @@ const teamControl = {
         try {
             const {teamId} = req.params;
 
-            const team = await Team.findById(teamId)
+            const team = await TeamModel.findById(teamId)
 
-            const members = await User.find({_id: {$ne: team.host.hostId, $in: team.members}})
+            const members = await UserModel.find({_id: {$ne: team.host.hostId, $in: team.members}})
             const membersExerciseStatus = members.map(member => ({
                 _id: member._id,
                 name: member.name,
                 exercise: member.goal
             }))
-            let host = await User.findById(team.host.hostId)
+            let host = await UserModel.findById(team.host.hostId)
             const hostExerciseStatus = {
                 _id: host._id,
                 name: host.name,
@@ -495,31 +492,9 @@ const teamControl = {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
 
-            const myTeams = await Team.find({_id: {$in: user.team}})
-            // const myTeamInfo = myTeams.map(team => ({
-            //     _id: team._id,
-            //     name: team.name,
-            //     notice: team.notice[team.notice.length - 1],
-            //     freeBoard: team.freeBoard[team.freeBoard.length - 1],
-            //     anonymousBoard: team.anonymousBoard[team.anonymousBoard.length - 1],
-            //
-            // }))
-            //
-            // const myTeamMembers = myTeams.map(team => ({
-            //     members: team.members
-            // }))
-            // let memberInfo = {}
-            //
-            // for (const members of myTeamMembers) {
-            //     const memberDetails = await User.find({_id: {$in: members.members}}, '_id name goal');
-            //     memberInfo = {
-            //         ...memberInfo,
-            //         [members.members.toString()]: memberDetails
-            //     };
-            // }
-            // res.status(200).json({myTeamInfo, memberInfo})
+            const myTeams = await TeamModel.find({_id: {$in: user.team}})
             const teamInfoArray = await Promise.all(myTeams.map(async team => {
-                const memberDetails = await User.find({_id: {$in: team.members}}, '_id name goal');
+                const memberDetails = await UserModel.find({_id: {$in: team.members}}, '_id name goal');
                 return {
                     _id: team._id,
                     name: team.name,
@@ -539,5 +514,4 @@ const teamControl = {
     }
 }
 
-// module.exports = teamControl;
 export default teamControl;

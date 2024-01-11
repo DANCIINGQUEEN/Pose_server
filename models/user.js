@@ -1,5 +1,5 @@
-// const mongoose = require('mongoose')
 import mongoose from 'mongoose'
+import poseDB from '../poseDatabase.js';
 
 
 const userSettingSchema = new mongoose.Schema({
@@ -63,6 +63,8 @@ const userSchema = new mongoose.Schema({
         required: false},
 })
 
-mongoose.model('user', userSchema)
+// mongoose.model('user', userSchema)
+const userModel = poseDB.model('user', userSchema);
+export default userModel;
 
 

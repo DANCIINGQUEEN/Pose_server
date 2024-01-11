@@ -1,24 +1,20 @@
-// const mongoose = require('mongoose')
-// const nodemailer = require('nodemailer')
-// const jwt = require('jsonwebtoken')
-// const bcrypt = require('bcrypt')
-import mongoose from 'mongoose'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
-const User = mongoose.model('user')
+dotenv.config()
+// const UserModel = mongoose.model('user')
+import UserModel from '../models/user.js'
 
-// require('dotenv').config()
 
 const getUserFromToken = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         console.log(token)
         if (!token) return res.status(401).json({message: 'No token, authorization denied'});
-        const decodedToken = jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decodedToken._id;
-        const user = await User.findById(userId);
+        const user = await UserModel.findById(userId);
         return user;
     } catch (error) {
         if (error.name === 'JsonWebTokenError' && error.message === 'jwt malformed') {
@@ -29,7 +25,7 @@ const getUserFromToken = async (req, res) => {
 };
 const checkUserExists = (user, res) => {
     if (!user) {
-        return res.status(404).json({message: 'User not found'});
+        return res.status(404).json({message: 'UserModel not found'});
     }
 };
 
@@ -38,9 +34,9 @@ const updateProps = async (req, res, props, propName) => {
         const user = await getUserFromToken(req)
         checkUserExists(user, res);
         const updateData = {$set: {[propName]: props[propName]}};
-        const updatedUser = await User.updateOne({_id: user._id}, updateData);
+        const updatedUser = await UserModel.updateOne({_id: user._id}, updateData);
         if (updatedUser.n === 0) {
-            return res.status(404).json({message: 'User not found'});
+            return res.status(404).json({message: 'UserModel not found'});
         }
         return true
     } catch (error) {
@@ -69,12 +65,12 @@ const userControl = {
             const transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: process.env.REACT_APP_NODEMAILER_USER,
-                    pass: process.env.REACT_APP_NODEMAILER_PASS,
+                    user: process.env.NODEMAILER_USER,
+                    pass: process.env.NODEMAILER_PASS,
                 },
             });
             const mailOptions = {
-                from: process.env.REACT_APP_NODEMAILER_USER,
+                from: process.env.NODEMAILER_USER,
                 to: email,
                 subject: "인증 코드",
                 text: `인증 코드는 : ${verifyCode} 입니다.`,
@@ -94,13 +90,13 @@ const userControl = {
         try {
             const {name, email, password} = req.body;
             const hashPass = await bcrypt.hash(password, 10);
-            const simpleNewUser = new User({
+            const simpleNewUser = new UserModel({
                 name,
                 email,
                 password: hashPass,
             })
             await simpleNewUser.save();
-            res.status(200).send('User saved to database');
+            res.status(200).send('UserModel saved to database');
         } catch (e) {
             res.status(400).send(e);
         }
@@ -109,7 +105,7 @@ const userControl = {
         try {
             const {name, email, password, sex, area, height, weight, age, exercise, wishList} = req.body;
             const hashPass = await bcrypt.hash(password, 10);
-            const newUser = new User({
+            const newUser = new UserModel({
                 name,
                 email,
                 password: hashPass,
@@ -122,7 +118,7 @@ const userControl = {
                 wishList,
             });
             await newUser.save();
-            res.status(200).send('User saved to database');
+            res.status(200).send('UserModel saved to database');
         } catch (error) {
             res.status(400).send(error);
         }
@@ -131,7 +127,7 @@ const userControl = {
         try {
             const {email, password} = req.body.form
 
-            let user = await User.findOne({email: email})
+            let user = await UserModel.findOne({email: email})
             if (!user) return res.status(401).json({message: 'Invalid email'})
 
             const isMatch = await bcrypt.compare(password, user.password)
@@ -142,7 +138,7 @@ const userControl = {
                 email: user.email,
                 name: user.name,
                 currentTime: Math.floor(Date.now() / 1000)
-            }, process.env.REACT_APP_JWT_SECRET)
+            }, process.env.JWT_SECRET)
 
             user={
                 _id: user._id,
@@ -180,12 +176,12 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const followingIds = await User.find(
+            const followingIds = await UserModel.find(
                 {_id: user._id},
                 {following: 1}
             ).lean();
             const followingUserIds = followingIds.length > 0 ? followingIds[0].following : [];
-            const recommendedUsers = await User.find({
+            const recommendedUsers = await UserModel.find({
                 _id: {$ne: user._id, $nin: followingUserIds},
             });
             res.status(200).json({recommendedUsers});
@@ -199,10 +195,10 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-            const userToFollow = await User.findById(userIdToFollow);
-            if (!userToFollow) return res.status(404).json({message: 'User to follow not found'});
+            const userToFollow = await UserModel.findById(userIdToFollow);
+            if (!userToFollow) return res.status(404).json({message: 'UserModel to follow not found'});
 
-            if (user.following.includes(userIdToFollow)) return res.status(400).json({message: 'User is already being followed'});
+            if (user.following.includes(userIdToFollow)) return res.status(400).json({message: 'UserModel is already being followed'});
 
             user.following.push(userIdToFollow);
             userToFollow.followers.push(user._id);
@@ -210,7 +206,7 @@ const userControl = {
             await user.save();
             await userToFollow.save();
 
-            const followingUsers = await User.find({_id: {$in: user.following}});
+            const followingUsers = await UserModel.find({_id: {$in: user.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({following: user.following, followingNames: followingNames});
@@ -224,17 +220,17 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-            const userToUnfollow = await User.findById(friend);
+            const userToUnfollow = await UserModel.findById(friend);
 
-            if (!userToUnfollow) return res.status(404).json({message: 'User to unfollow not found'});
-            if (!user.following.includes(friend)) return res.status(400).json({message: 'User is not being followed'});
+            if (!userToUnfollow) return res.status(404).json({message: 'UserModel to unfollow not found'});
+            if (!user.following.includes(friend)) return res.status(400).json({message: 'UserModel is not being followed'});
 
-            await User.updateOne({_id: user._id}, {$pull: {following: friend}});
-            await User.updateOne({_id: friend}, {$pull: {followers: user._id}});
+            await UserModel.updateOne({_id: user._id}, {$pull: {following: friend}});
+            await UserModel.updateOne({_id: friend}, {$pull: {followers: user._id}});
 
-            const updatedUser = await User.findById(user._id);
+            const updatedUser = await UserModel.findById(user._id);
 
-            const followingUsers = await User.find({_id: {$in: updatedUser.following}});
+            const followingUsers = await UserModel.find({_id: {$in: updatedUser.following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({f: friend, following: updatedUser.following, followingNames: followingNames})
@@ -246,8 +242,8 @@ const userControl = {
     initialFollower: async (req, res) => {
         const {userId} = req.body
         try {
-            const user = await User.findById(userId);
-            if (!user) return res.status(404).json({message: 'User not found'});
+            const user = await UserModel.findById(userId);
+            if (!user) return res.status(404).json({message: 'UserModel not found'});
             user.followers = [];
             await user.save();
             res.json({msg: 'success', name: user.name, followers: user.followers});
@@ -279,7 +275,7 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
 
-            const updatedUser = await User.findByIdAndUpdate(user._id, {$set: {goal: null}}, {new: true});
+            const updatedUser = await UserModel.findByIdAndUpdate(user._id, {$set: {goal: null}}, {new: true});
             res.status(200).json({user: updatedUser});
         } catch (error) {
             console.error(error);
@@ -292,7 +288,7 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
 
-            const followingUsers = await User.find({_id: {$in: following}});
+            const followingUsers = await UserModel.find({_id: {$in: following}});
             const followingNames = followingUsers.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({following: followingNames});
@@ -307,7 +303,7 @@ const userControl = {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
 
-            const followerUsers = await User.find({_id: {$in: followers}});
+            const followerUsers = await UserModel.find({_id: {$in: followers}});
             const followerNames = followerUsers.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({followers: followerNames});
@@ -370,7 +366,7 @@ const userControl = {
     initialUserPost: async (req, res) => {
         try {
             const {userId} = req.body
-            const postUser = await User.findById(userId).populate('post');
+            const postUser = await UserModel.findById(userId).populate('post');
             postUser.post = []
             await postUser.save();
             res.json({post: postUser})
@@ -384,7 +380,7 @@ const userControl = {
             checkUserExists(user, res);
 
             const followingUserIds = user.following;
-            const followingPosts = await User.aggregate([
+            const followingPosts = await UserModel.aggregate([
                 {$match: {_id: {$in: followingUserIds}}},
                 {$unwind: '$post'},
                 {$sort: {'post.date': -1}},
@@ -411,7 +407,7 @@ const userControl = {
         try {
             const user = await getUserFromToken(req);
             checkUserExists(user, res);
-            const myPosts = await User.aggregate([
+            const myPosts = await UserModel.aggregate([
                 {$match: {_id: user._id}},
                 {$unwind: '$post'},
                 {$sort: {'post.date': -1}},
@@ -439,7 +435,7 @@ const userControl = {
             checkUserExists(user, res);
 
             const {postId} = req.params;
-            const postUser = await User.findById(user._id).populate('post');
+            const postUser = await UserModel.findById(user._id).populate('post');
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) return res.status(404).json({message: 'Post not found'});
 
@@ -500,8 +496,8 @@ const userControl = {
 
             const {userId, postId, content} = req.body;
 
-            const postUser = await User.findById(userId).populate('post');
-            if (!user) return res.status(404).json({message: 'User not found'});
+            const postUser = await UserModel.findById(userId).populate('post');
+            if (!user) return res.status(404).json({message: 'UserModel not found'});
 
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) return res.status(404).json({message: 'Post not found'});
@@ -526,8 +522,8 @@ const userControl = {
             checkUserExists(user, res);
 
             const {userId, postId, commentId} = req.params
-            const userPost = await User.findById(userId).populate('post');
-            if (!userPost) return res.status(404).json({message: 'User not found'});
+            const userPost = await UserModel.findById(userId).populate('post');
+            if (!userPost) return res.status(404).json({message: 'UserModel not found'});
 
             const post = userPost.post.find(p => p._id.toString() === postId);
             if (!post) return res.status(404).json({message: 'Post not found'});
@@ -551,8 +547,8 @@ const userControl = {
         try {
             const {userId, postId} = req.body;
 
-            const postUser = await User.findById(userId).populate('post');
-            if (!postUser) return res.status(404).json({message: 'User not found'});
+            const postUser = await UserModel.findById(userId).populate('post');
+            if (!postUser) return res.status(404).json({message: 'UserModel not found'});
 
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) return res.status(404).json({message: 'Post not found'});
@@ -570,8 +566,8 @@ const userControl = {
             checkUserExists(user, res);
 
             const {userId, postId} = req.body;
-            const postUser = await User.findById(userId).populate('post');
-            if (!postUser) return res.status(404).json({message: 'User not found'});
+            const postUser = await UserModel.findById(userId).populate('post');
+            if (!postUser) return res.status(404).json({message: 'UserModel not found'});
 
             const post = postUser.post.find(p => p._id.toString() === postId);
             if (!post) return res.status(404).json({message: 'Post not found'});
@@ -592,7 +588,7 @@ const userControl = {
             checkUserExists(user, res);
 
             const followingUserIds = user.following;
-            const followingUsers = await User.find({_id: {$in: followingUserIds}});
+            const followingUsers = await UserModel.find({_id: {$in: followingUserIds}});
 
             const followingUsersExerciseStatus = followingUsers.map(user => {
                 const {name, goal, _id} = user;
@@ -615,7 +611,7 @@ const userControl = {
             checkUserExists(user, res);
             const {userId} = req.params;
 
-            let userInfo = await User.findById(userId)
+            let userInfo = await UserModel.findById(userId)
             console.log(userInfo.setting)
             const isPublic = userInfo.setting
 
@@ -644,7 +640,7 @@ const userControl = {
             checkUserExists(user, res);
             const {follow} = req.body;
 
-            const followList = await User.find({_id: {$in: follow}});
+            const followList = await UserModel.find({_id: {$in: follow}});
             const followInfos = followList.map((user) => [user._id, user.name, user.email]);
 
             res.status(200).json({followInfos})
@@ -670,5 +666,4 @@ const userControl = {
 
 }
 
-// module.exports = userControl
 export default userControl

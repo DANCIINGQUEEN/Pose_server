@@ -1,31 +1,27 @@
-// const express = require('express');
-// const router = express.Router();
-// const teamController = require('../controllers/teamControllers');
 import express from 'express'
 import teamController from '../controllers/teamControllers.js'
 const router = express.Router();
 
 router
-    .post('/createTeam', teamController.createMateTeam)
     .get('/getAllTeams', teamController.getAllTeams)
-    .post('/joinTeam', teamController.joinTeam)
-    .delete('/quitTeam/:teamId', teamController.quitTeam)
-    .delete('/deleteTeam/:teamId', teamController.deleteTeam)
     .get('/getJoinedTeams', teamController.getJoinedTeams)
     .get('/getTeamInfo/:teamId', teamController.getTeamInfo)
-    .post('/postTeamNotice/:teamId', teamController.postTeamNotice)
     .get('/getTeamNotice/:teamId', teamController.getTeamNotice)
-    .delete('/deleteTeamNotice/:teamId/:noticeId', teamController.deleteTeamNotice)
-    .put('/updateTeamNotice/:teamId/:noticeId', teamController.updateTeamNotice)
-    .post('/postTeamBoard/:teamId', teamController.postTeamBoard)
-    .delete('/deleteTeamBoard/:teamId/:boardId', teamController.deleteTeamBoard)
-    .put('/updateTeamBoard/:teamId/:boardId', teamController.updateTeamBoard)
     .get('/getTeamBoard/:teamId', teamController.getTeamBoard)
-    .post('/postTeamBoardComment/:teamId', teamController.postBoardComment)
-    .delete('/deleteTeamBoardComment/:teamId/:boardId/:commentId', teamController.deleteTeamBoardComment)
     .get('/getTeamMembers/:teamId', teamController.getTeamMembers)
     .get('/getTeamMembersExerciseStatus/:teamId', teamController.getTeamMembersExerciseStatus)
     .get('/getJoinedTeamInfo', teamController.getJoinedTeamInfo)
+    .post('/createTeam', teamController.createMateTeam)
+    .post('/joinTeam', teamController.joinTeam)
+    .post('/postTeamNotice/:teamId', teamController.postTeamNotice)
+    .post('/postTeamBoard/:teamId', teamController.postTeamBoard)
+    .post('/postTeamBoardComment/:teamId', teamController.postBoardComment)
+    .delete('/quitTeam/:teamId', teamController.quitTeam)
+    .delete('/deleteTeam/:teamId', teamController.deleteTeam)
+    .delete('/deleteTeamNotice/:teamId/:noticeId', teamController.deleteTeamNotice)
+    .delete('/deleteTeamBoard/:teamId/:boardId', teamController.deleteTeamBoard)
+    .delete('/deleteTeamBoardComment/:teamId/:boardId/:commentId', teamController.deleteTeamBoardComment)
+    .put('/updateTeamNotice/:teamId/:noticeId', teamController.updateTeamNotice)
+    .put('/updateTeamBoard/:teamId/:boardId', teamController.updateTeamBoard)
 
-// module.exports = router;
 export default router;

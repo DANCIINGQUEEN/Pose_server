@@ -1,4 +1,3 @@
-// const mongoose=require('mongoose');
 import mongoose from 'mongoose';
 const index=mongoose.model('index');
 
@@ -17,6 +16,4 @@ const indexControl={
             });
     }
 }
-
-// module.exports=indexControl;
 export default indexControl;
