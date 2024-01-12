@@ -11,6 +11,7 @@ import initializeSocket from "./socket.js";
 
 import './poseDatabase.js'
 import './lolDatabase.js'
+import './koyebPGDatabase.js'
 
 dotenv.config();
 debug("server:server");
@@ -28,7 +29,7 @@ import "./models/user.js";
 import "./models/index.js";
 import "./models/team.js";
 import "./models/playList.js";
-import "./models/memo.js"
+import "./models/memo.js";
 // import "./models/lolUser.js"
 
 //라우터 임포트
@@ -37,6 +38,7 @@ import usersRouter from "./routes/users.js";
 import teamRouter from "./routes/teams.js";
 import playListRouter from "./routes/playLists.js";
 import memoRouter from "./routes/memos.js";
+import tutorialUserRouter from "./routes/tutorialUsers.js";
 // import lolUserRouter from "./routes/lolUsers.js";
 
 //라우터 설정
@@ -45,6 +47,7 @@ app.use("/user", usersRouter);
 app.use("/team", teamRouter);
 app.use("/playlist", playListRouter);
 app.use("/memo", memoRouter);
+app.use("/ttruser", tutorialUserRouter);
 // app.use("/loluser", lolUserRouter);
 
 // catch 404 and forward to error handler

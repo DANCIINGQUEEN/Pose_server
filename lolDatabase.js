@@ -11,8 +11,8 @@ const lolDB=mongoose.createConnection(dbUrl, { useNewUrlParser: true });
 mongoose.set("strictQuery", false);
 
 lolDB.on('connected', () => console.log('Connected to Lol database'));
-lolDB.on('error', () => console.log('Failed to connect to Lol database', dbUrl));
-lolDB.on('open', () => console.log('Connected to Lol MongoDB server', dbUrl));
-lolDB.on('disconnect', () => console.log('Disconnected from Lol MongoDB server', dbUrl));
+lolDB.on('error', () => console.log('Failed to connect to Lol database'));
+lolDB.on('open', () => console.log('Connected to Lol MongoDB server'));
+lolDB.on('disconnect', () => console.log('Disconnected from Lol MongoDB server'));
 
 export default lolDB;

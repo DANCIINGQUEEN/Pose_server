@@ -4,12 +4,12 @@ import hpp from 'hpp';
 import cors from 'cors';
 
 export const setupSecurity = (app) => {
-    // app.use(helmet());
-    // app.use(cors())
+    app.use(helmet());
+    app.use(cors())
     const limiter=rateLimit({
         windowMs: 10 * 60 * 1000,
         max: 100,
     })
     app.use(limiter);
-    // app.use(hpp());
+    app.use(hpp());
 }

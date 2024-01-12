@@ -11,8 +11,8 @@ const poseDB=mongoose.createConnection(dbUrl, { useNewUrlParser: true });
 mongoose.set("strictQuery", false);
 
 poseDB.on('connected', () => console.log('Connected to Pose database'));
-poseDB.on('error', () => console.log('Failed to connect to Pose database', dbUrl));
-poseDB.on('open', () => console.log('Connected to Pose MongoDB server', dbUrl));
-poseDB.on('disconnect', () => console.log('Disconnected from Pose MongoDB server', dbUrl));
+poseDB.on('error', () => console.log('Failed to connect to Pose database'));
+poseDB.on('open', () => console.log('Connected to Pose MongoDB server'));
+poseDB.on('disconnect', () => console.log('Disconnected from Pose MongoDB server'));
 
 export default poseDB;

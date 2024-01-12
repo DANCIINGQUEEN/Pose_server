@@ -10,7 +10,6 @@ import UserModel from '../models/user.js'
 const getUserFromToken = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
-        console.log(token)
         if (!token) return res.status(401).json({message: 'No token, authorization denied'});
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decodedToken._id;
@@ -165,7 +164,6 @@ const userControl = {
         try {
             const user = await getUserFromToken(req)
             checkUserExists(user, res);
-            // console.log(user)
             res.status(200).json(user);
         } catch (error) {
             console.error(error)
@@ -351,7 +349,6 @@ const userControl = {
 
             const {fileName, content} = req.body
 
-            // console.log(fileName, content)
             const newPost = {
                 image: fileName, // 이미지 파일 이름
                 content: content,
@@ -443,7 +440,6 @@ const userControl = {
             postUser.post.splice(indexOfPost, 1);
             await postUser.save();
 
-            // console.log(indexOfPost)
             return res.status(200).json({message: 'Post deleted successfully'});
         } catch (e) {
             console.error(e)
@@ -458,7 +454,6 @@ const userControl = {
             const {content} = req.body;
 
             const post = user.post.find(post => post._id.toString() === postId);
-            // console.log(post, postId, content)
             post.content = content
             await user.save();
 
@@ -598,7 +593,6 @@ const userControl = {
                     goal
                 }
             })
-            // console.log(user)
             res.status(200).json({followingUsersExerciseStatus});
         } catch (error) {
             console.error(error);
@@ -612,7 +606,6 @@ const userControl = {
             const {userId} = req.params;
 
             let userInfo = await UserModel.findById(userId)
-            console.log(userInfo.setting)
             const isPublic = userInfo.setting
 
             userInfo = {

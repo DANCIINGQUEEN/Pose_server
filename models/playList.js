@@ -9,6 +9,5 @@ const playListSchema = new mongoose.Schema({
     }]
 })
 
-// mongoose.model('playList', playListSchema)
 const playListModel = lolDB.model('playList', playListSchema);
 export default playListModel;
